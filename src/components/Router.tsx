@@ -14,7 +14,7 @@ const Router = () => (
   <BrowserRouter>
     <Switch>
       {/* If slug is one of three products, send slug to App as prop */}
-      <Route path="/clothing/:slug(gloves|beanies|masks)" render={( {match}: MatchProps) =>
+      <Route path="/clothing/:slug(gloves|beanies|facemasks)" render={( {match}: MatchProps) =>
         ( <App slug={match.params.slug} /> )} />
       {/* Handle all other routes */}
       <Route component={NotFound} />
