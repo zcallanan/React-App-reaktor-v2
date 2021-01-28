@@ -63,7 +63,7 @@ class App extends React.Component<Props, State> {
       headers
     }
 
-    const url: string = `http://localhost:3010/`
+    const url: string = `http://localhost:3010/` // TODO: Replace with production value
     // const url: string = `https://bad-api-assignment.reaktor.com/v2/products/${product}`
     const pending: pendingType = { ...this.state.pending };
     const success: successType = { ...this.state.success };
