@@ -1,5 +1,4 @@
 import React from 'react';
-// require('dotenv').config()
 
 type pendingType = {
   pendingProduct: boolean,
