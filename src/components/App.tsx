@@ -15,6 +15,16 @@ type failureType = {
   failureAvailability: boolean
 }
 
+type productType = {
+  color: Array<string>,
+  id: string,
+  manufacturer: string,
+  name: string,
+  price: number,
+  type: string,
+}
+
+type productsInterface = Array<productType>;
 
 interface Props {
   slug: string
@@ -23,7 +33,8 @@ interface Props {
 interface State {
   pending: pendingType,
   success: successType,
-  failure: failureType
+  failure: failureType,
+  products: productsInterface
 }
 
 class App extends React.Component<Props, State> {
@@ -41,7 +52,8 @@ class App extends React.Component<Props, State> {
       failure: {
         failureProduct: false,
         failureAvailability: false
-      }
+      },
+      products: []
     }
   }
 
@@ -66,45 +78,81 @@ class App extends React.Component<Props, State> {
       headers
     }
     const url: string = process.env.REACT_APP_PROXY_URL! // TODO: Replace with production value
-    console.log(url)
     const pending: pendingType = { ...this.state.pending };
     const success: successType = { ...this.state.success };
+
+
     pending.pendingProduct = true;
     this.setState({ pending });
-    // fetch product data
-    fetch(url, opts)
-    .then(response => response.text())
-    .then(text => {
+
+    const getProducts = async (url: string, opts: RequestInit): Promise<Array<productType> | undefined> => {
+      let data: productsInterface;
       try {
-          const data = JSON.parse(text);
-          console.log(data)
-          if (data.length) {
-            console.log('success!')
-            pending.pendingProduct = false;
-            success.successProduct = true;
-            this.setState({ pending, success });
-            // TODO: Make the Availabilty request
-          } else {
-            // TODO: Data is empty, handle it
+        // Check sessionStorage
+        const productsRef: string | null = sessionStorage.getItem(`${product}`)
+
+        if (productsRef) {
+          // sessionStorage available
+          data = JSON.parse(productsRef);
+        } else {
+          // Get data from products API
+          const response = await fetch(url, opts)
+          data = await response.json()
+        }
+
+        if (await data.length) {
+          console.log(await data)
+          pending.pendingProduct = false;
+          success.successProduct = true;
+          this.setState({ pending, success, });
+          data.forEach(item => {
+            this.setState({ products: [...this.state.products, item] })
+          })
+          // Save data to session storage
+          if (!productsRef) {
+            sessionStorage.setItem(`${product}`, JSON.stringify(data));
           }
 
+          // TODO: Setstate of products
+        } else {
+          // TODO: Data is empty, handle it
+        }
       } catch(err) {
          // TODO: Handle text response
+         return err
       }
-    });
+    }
+
+    const products: productsInterface = { ...this.state.products }
+    if (!products.length) {
+      getProducts(url, opts);
+    }
+
+
   }
 
   protected getAvailabilities() {
+    /* When product list data is available:
+      1. Availability is determined by manufacturer, so parse data for a list of manufacturers
+      2. Issue API request per manufacturer, handling pending, success, failure for each in list
+
+
+    */
 
   }
 
-  /*
-    TODOs:
-    1. API calls on page load, or on nav click
-    2. API product
-  */
-
   render() {
+    const pending: pendingType = { ...this.state.pending };
+    const success: successType = { ...this.state.success };
+    const failure: failureType = { ...this.state.failure };
+
+    if (pending.pendingProduct && !success.successProduct) {
+      // Product List API return is pending, render product list loadspinner
+    } else if (!pending.pendingProduct && success.successProduct) {
+      // Render product list data
+    } else  if (failure.failureProduct) {
+      // Handle if no products to display
+    }
 
     return (
       <div>Hello Placeholder!</div>
