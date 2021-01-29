@@ -24,7 +24,9 @@ type productType = {
   type: string,
 }
 
-type productsInterface = Array<productType>;
+type productsType = Array<productType>;
+
+type manufacturersType = Array<string>;
 
 interface Props {
   slug: string
@@ -34,7 +36,8 @@ interface State {
   pending: pendingType,
   success: successType,
   failure: failureType,
-  products: productsInterface
+  products: productsType,
+  manufacturers: manufacturersType
 }
 
 class App extends React.Component<Props, State> {
@@ -53,7 +56,8 @@ class App extends React.Component<Props, State> {
         failureProduct: false,
         failureAvailability: false
       },
-      products: []
+      products: [],
+      manufacturers: []
     }
   }
 
@@ -86,7 +90,7 @@ class App extends React.Component<Props, State> {
     this.setState({ pending });
 
     const getProducts = async (url: string, opts: RequestInit): Promise<Array<productType> | undefined> => {
-      let data: productsInterface;
+      let data: productsType;
       try {
         // Check sessionStorage
         const productsRef: string | null = sessionStorage.getItem(`${product}`)
@@ -101,19 +105,23 @@ class App extends React.Component<Props, State> {
         }
 
         if (await data.length) {
-          console.log(await data)
           pending.pendingProduct = false;
           success.successProduct = true;
           this.setState({ pending, success, });
+          let manufacturers: manufacturersType;
+          console.log(data)
           data.forEach(item => {
-            this.setState({ products: [...this.state.products, item] })
+            manufacturers = [...this.state.manufacturers]
+            if (!manufacturers.includes(item.manufacturer)) {
+              this.setState({ manufacturers: [...this.state.manufacturers, item.manufacturer], products: [...this.state.products, item] })
+            } else {
+              this.setState({ products: [...this.state.products, item] })
+            }
           })
           // Save data to session storage
           if (!productsRef) {
             sessionStorage.setItem(`${product}`, JSON.stringify(data));
           }
-
-          // TODO: Setstate of products
         } else {
           // TODO: Data is empty, handle it
         }
@@ -123,7 +131,7 @@ class App extends React.Component<Props, State> {
       }
     }
 
-    const products: productsInterface = { ...this.state.products }
+    const products: productsType = { ...this.state.products }
     if (!products.length) {
       getProducts(url, opts);
     }
