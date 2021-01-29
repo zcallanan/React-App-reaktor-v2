@@ -3,6 +3,3 @@ export declare namespace JSX {
     [elemName: string]: any;
   }
 }
-
-
-

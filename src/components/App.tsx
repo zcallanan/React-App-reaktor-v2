@@ -1,4 +1,5 @@
 import React from 'react';
+// require('dotenv').config()
 
 type pendingType = {
   pendingProduct: boolean,
@@ -14,6 +15,7 @@ type failureType = {
   failureProduct: boolean,
   failureAvailability: boolean
 }
+
 
 interface Props {
   slug: string
@@ -53,18 +55,19 @@ class App extends React.Component<Props, State> {
   }
 
   protected getProductList(product: string): void {
-
+    const productURL: string = process.env.REACT_APP_PRODUCT_URL!
+    const webToken: string = process.env.REACT_APP_WEB_TOKEN!
 
     const headers: HeadersInit = {
-      'Target-URL': `https://bad-api-assignment.reaktor.com/v2/products/${product}`
+      'Target-URL': `${productURL}${product}`,
+      'Web-Token': webToken
     }
 
     const opts: RequestInit = {
       headers
     }
-
-    const url: string = `http://localhost:3010/` // TODO: Replace with production value
-    // const url: string = `https://bad-api-assignment.reaktor.com/v2/products/${product}`
+    const url: string = process.env.REACT_APP_PROXY_URL! // TODO: Replace with production value
+    console.log(url)
     const pending: pendingType = { ...this.state.pending };
     const success: successType = { ...this.state.success };
     pending.pendingProduct = true;
@@ -75,6 +78,7 @@ class App extends React.Component<Props, State> {
     .then(text => {
       try {
           const data = JSON.parse(text);
+          console.log(data)
           if (data.length) {
             console.log('success!')
             pending.pendingProduct = false;
