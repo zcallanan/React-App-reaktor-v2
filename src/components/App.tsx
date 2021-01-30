@@ -1,19 +1,5 @@
 import React from 'react';
 
-// State types
-
-type pendingProductType = {
-  pendingProduct: boolean,
-}
-
-type successProductType = {
-  successProduct: boolean,
-}
-
-type failureProductType = {
-  failureProduct: boolean,
-}
-
 type manufacturersType = Array<string>;
 
 type productType = {
@@ -28,32 +14,19 @@ type productType = {
 
 type productsType = Array<productType>;
 
-// Availabilities
-
 type availabilityAPIType = {
   id: string,
   datapayload: string
 }
 
+type availabilityAPIStatus = {
+  code: number,
+  response: availabilitiesAPIType
+}
+
 type availabilitiesAPIType = Array<availabilityAPIType>;
 
-/*
-
-  availabilities: [
-    manName: {
-      pendingAvailability: boolean,
-      successAvailability: boolean,
-      failureAvailability: boolean
-    }
-  ]
-
-*/
-
 type availabilitiesType = Array<manufacturerType>;
-
-// type manufacturersAvailabiltiesType = {
-//   availabilities: manufacturerType
-// }
 
 type manufacturerType = {
   [key: string]: manufacturerAvailabilityType
@@ -65,14 +38,18 @@ type manufacturerAvailabilityType = {
   failureAvailability: boolean
 }
 
+type productStatusType = {
+  pendingProduct: boolean,
+  successProduct: boolean,
+  failureProduct: boolean
+}
+
 interface Props {
   slug: string
 }
 
 interface State {
-  pending: pendingProductType,
-  success: successProductType,
-  failure: failureProductType,
+  productStatus: productStatusType,
   products: productsType,
   manufacturers: manufacturersType,
   availabilities: availabilitiesType
@@ -82,14 +59,10 @@ class App extends React.Component<Props, State> {
   constructor(props: any) {
     super(props);
     this.state = {
-      pending: {
+      productStatus: {
         pendingProduct: false,
-      },
-      success: {
         successProduct: false,
-      },
-      failure: {
-        failureProduct: false,
+        failureProduct: false
       },
       products: [],
       manufacturers: [],
@@ -118,12 +91,10 @@ class App extends React.Component<Props, State> {
       headers
     }
     const url: string = process.env.REACT_APP_PROXY_URL! // TODO: Replace with production value
-    const pending: pendingProductType = { ...this.state.pending };
-    const success: successProductType = { ...this.state.success };
+    const productStatus: productStatusType = { ...this.state.productStatus };
 
-
-    pending.pendingProduct = true;
-    this.setState({ pending });
+    productStatus.pendingProduct = true;
+    this.setState({ productStatus });
 
     const fetchProducts = async (url: string, opts: RequestInit): Promise<productsType | undefined> => {
       let data: productsType;
@@ -141,10 +112,12 @@ class App extends React.Component<Props, State> {
           data = await response.json()
         }
 
-        if (await data.length) {
-          pending.pendingProduct = false;
-          success.successProduct = true;
-          this.setState({ pending, success, });
+        if (await Array.isArray(data) && data.length) {
+          const productStatus: productStatusType = { ...this.state.productStatus };
+
+          productStatus.pendingProduct = false;
+          productStatus.successProduct = true;
+          this.setState({ productStatus });
           let manufacturers: manufacturersType; // Array of manufacturer strings
           // let availabilities: availabilitiesType;  // Array of manufacturer objects
           data.forEach(item => {
@@ -179,7 +152,7 @@ class App extends React.Component<Props, State> {
             this.setState({
               availabilities: [...this.state.availabilities, availability]
             })
-            //this.getAvailabilities(manufacturer);
+            this.getAvailabilities(manufacturer);
           })
 
         } else {
@@ -199,77 +172,99 @@ class App extends React.Component<Props, State> {
 
   }
 
-  // protected getAvailabilities(manufacturer: string): void {
-  //   const availabilityURL: string = process.env.REACT_APP_AVAILABILITY_URL!
-  //   const webToken: string = process.env.REACT_APP_WEB_TOKEN!
+  protected getAvailabilities(manufacturer: string): void {
 
-  //   const headers: HeadersInit = {
-  //     'Target-URL': `${availabilityURL}${manufacturer}`,
-  //     'Web-Token': webToken
-  //   }
+    const availabilityURL: string = process.env.REACT_APP_AVAILABILITY_URL!
+    const webToken: string = process.env.REACT_APP_WEB_TOKEN!
 
-  //   const opts: RequestInit = {
-  //     headers
-  //   }
-  //   const url: string = process.env.REACT_APP_PROXY_URL! // TODO: Replace with production value
+    const headers: HeadersInit = {
+      'Target-URL': `${availabilityURL}${manufacturer}`,
+      'Web-Token': webToken
+    }
 
-  //   const fetchAvailabilities = async (url: string, opts: RequestInit): Promise<availabilitiesAPIType | undefined> => {
-  //     let data: availabilitiesAPIType;
-  //     try {
+    const opts: RequestInit = {
+      headers
+    }
+    const url: string = process.env.REACT_APP_PROXY_URL! // TODO: Replace with production value
 
-  //        const response = await fetch(url, opts)
-  //        data = await response.json()
+    const availabilities: availabilitiesType = [ ...this.state.availabilities ];
+    const manufacturers: manufacturersType = [...this.state.manufacturers];
 
+    availabilities[manufacturers.indexOf(manufacturer)][manufacturer].pendingAvailability = true;
 
-  //       if (await data.length) {
-  //         pending.pendingProduct = false;
-  //         success.successProduct = true;
-  //         this.setState({ pending, success, });
-  //         let manufacturers: manufacturersType;
-  //         data.forEach(item => {
-  //           manufacturers = [...this.state.manufacturers]
-  //           // Track availability per product
-  //           item['availability'] = "";
-  //           if (!manufacturers.includes(item.manufacturer)) {
-  //             this.setState({
-  //               manufacturers: [...this.state.manufacturers, item.manufacturer],
-  //               products: [...this.state.products, item]
-  //             })
-  //           } else {
-  //             this.setState({
-  //               products: [...this.state.products, item]
-  //             })
-  //           }
-  //         })
-  //         // Save data to session storage if that product does not have one
-  //         if (!productsRef) {
-  //           sessionStorage.setItem(`${product}`, JSON.stringify(data));
-  //         }
-  //         manufacturers = [...this.state.manufacturers]
-  //         manufacturers.forEach(manufacturer => {
+    this.setState({ availabilities });
 
-  //         })
+    const fetchAvailabilities = async (url: string, opts: RequestInit): Promise<availabilityAPIStatus | undefined> => {
+      let data: availabilityAPIStatus;
+      try {
 
-  //       } else {
-  //         // TODO: Data is empty, handle it
-  //       }
-  //     } catch(err) {
-  //        // TODO: Handle text response
-  //        return err
-  //     }
-  //   }
-  // }
+         // Check sessionStorage
+            const manufacturerRef: string | null = sessionStorage.getItem(`${manufacturer}`)
+
+            if (manufacturerRef) {
+              // sessionStorage is available
+              data = JSON.parse(manufacturerRef);
+              // TODO: get API data and refresh stale data
+            } else {
+              // sessionStorage is not available, get data from products API
+              let response = await fetch(url, opts)
+              data = await response.json()
+              console.log(await data.response)
+            }
+
+        if (await Array.isArray(data.response) && data.response.length) {
+          const availabilities: availabilitiesType = [ ...this.state.availabilities ]
+          const manufacturers: manufacturersType = [...this.state.manufacturers];
+
+          availabilities[manufacturers.indexOf(manufacturer)][manufacturer].pendingAvailability = false;
+          availabilities[manufacturers.indexOf(manufacturer)][manufacturer].successAvailability = true;
+          this.setState({ availabilities });
+
+          // console.log(data)
+          // data.forEach(item => {
+          //   manufacturers = [...this.state.manufacturers]
+          //   // Track availability per product
+          //   item['availability'] = "";
+          //   if (!manufacturers.includes(item.manufacturer)) {
+          //     this.setState({
+          //       manufacturers: [...this.state.manufacturers, item.manufacturer],
+          //       products: [...this.state.products, item]
+          //     })
+          //   } else {
+          //     this.setState({
+          //       products: [...this.state.products, item]
+          //     })
+          //   }
+          // })
+          // // Save data to session storage if that product does not have one
+          // if (!productsRef) {
+          //   sessionStorage.setItem(`${product}`, JSON.stringify(data));
+          // }
+          // manufacturers = [...this.state.manufacturers]
+          // manufacturers.forEach(manufacturer => {
+
+          // })
+
+        } else {
+          // TODO: Data is empty, handle it
+          fetchAvailabilities(url, opts);
+        }
+      } catch(err) {
+         // TODO: Handle text response
+         return err
+      }
+    }
+    fetchAvailabilities(url, opts);
+  }
 
   render() {
-    const pending: pendingProductType = { ...this.state.pending };
-    const success: successProductType = { ...this.state.success };
-    const failure: failureProductType = { ...this.state.failure };
+    const productStatus: productStatusType = { ...this.state.productStatus }
 
-    if (pending.pendingProduct && !success.successProduct) {
+    if (productStatus.pendingProduct && !productStatus.successProduct) {
       // Product List API return is pending, render product list loadspinner
-    } else if (!pending.pendingProduct && success.successProduct) {
+    } else if (!productStatus.pendingProduct && productStatus.successProduct) {
       // Render product list data
-    } else  if (failure.failureProduct) {
+    } else  if (productStatus.failureProduct) {
       // Handle if no products to display
     }
 
