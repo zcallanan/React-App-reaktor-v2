@@ -22,6 +22,7 @@ type productType = {
   name: string,
   price: number,
   type: string,
+  availability: string
 }
 
 type productsType = Array<productType>;
@@ -64,7 +65,7 @@ class App extends React.Component<Props, State> {
   componentDidMount() {
     const product: string = this.props.slug // Product name from router slug
 
-    // TODO: Get product list
+    // Populate products and manufacturers state & sessionStorage
     this.getProductList(product);
 
   }
@@ -89,17 +90,18 @@ class App extends React.Component<Props, State> {
     pending.pendingProduct = true;
     this.setState({ pending });
 
-    const getProducts = async (url: string, opts: RequestInit): Promise<Array<productType> | undefined> => {
+    const fetchProducts = async (url: string, opts: RequestInit): Promise<Array<productType> | undefined> => {
       let data: productsType;
       try {
         // Check sessionStorage
         const productsRef: string | null = sessionStorage.getItem(`${product}`)
 
         if (productsRef) {
-          // sessionStorage available
+          // sessionStorage is available
           data = JSON.parse(productsRef);
+          // TODO: get API data and refresh stale data
         } else {
-          // Get data from products API
+          // sessionStorage is not available, get data from products API
           const response = await fetch(url, opts)
           data = await response.json()
         }
@@ -109,16 +111,22 @@ class App extends React.Component<Props, State> {
           success.successProduct = true;
           this.setState({ pending, success, });
           let manufacturers: manufacturersType;
-          console.log(data)
           data.forEach(item => {
             manufacturers = [...this.state.manufacturers]
+            // Track availability per product
+            item['availability'] = "";
             if (!manufacturers.includes(item.manufacturer)) {
-              this.setState({ manufacturers: [...this.state.manufacturers, item.manufacturer], products: [...this.state.products, item] })
+              this.setState({
+                manufacturers: [...this.state.manufacturers, item.manufacturer],
+                products: [...this.state.products, item]
+              })
             } else {
-              this.setState({ products: [...this.state.products, item] })
+              this.setState({
+                products: [...this.state.products, item]
+              })
             }
           })
-          // Save data to session storage
+          // Save data to session storage if that product does not have one
           if (!productsRef) {
             sessionStorage.setItem(`${product}`, JSON.stringify(data));
           }
@@ -133,7 +141,7 @@ class App extends React.Component<Props, State> {
 
     const products: productsType = { ...this.state.products }
     if (!products.length) {
-      getProducts(url, opts);
+      fetchProducts(url, opts);
     }
 
 
