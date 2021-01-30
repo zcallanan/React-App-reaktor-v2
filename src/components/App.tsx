@@ -1,19 +1,20 @@
 import React from 'react';
 
-type pendingType = {
+// State types
+
+type pendingProductType = {
   pendingProduct: boolean,
-  pendingAvailability: boolean
 }
 
-type successType = {
+type successProductType = {
   successProduct: boolean,
-  successAvailability: boolean
 }
 
-type failureType = {
+type failureProductType = {
   failureProduct: boolean,
-  failureAvailability: boolean
 }
+
+type manufacturersType = Array<string>;
 
 type productType = {
   color: Array<string>,
@@ -27,18 +28,54 @@ type productType = {
 
 type productsType = Array<productType>;
 
-type manufacturersType = Array<string>;
+// Availabilities
+
+type availabilityAPIType = {
+  id: string,
+  datapayload: string
+}
+
+type availabilitiesAPIType = Array<availabilityAPIType>;
+
+/*
+
+  availabilities: [
+    manName: {
+      pendingAvailability: boolean,
+      successAvailability: boolean,
+      failureAvailability: boolean
+    }
+  ]
+
+*/
+
+type availabilitiesType = Array<manufacturerType>;
+
+// type manufacturersAvailabiltiesType = {
+//   availabilities: manufacturerType
+// }
+
+type manufacturerType = {
+  [key: string]: manufacturerAvailabilityType
+}
+
+type manufacturerAvailabilityType = {
+  pendingAvailability: boolean,
+  successAvailability: boolean,
+  failureAvailability: boolean
+}
 
 interface Props {
   slug: string
 }
 
 interface State {
-  pending: pendingType,
-  success: successType,
-  failure: failureType,
+  pending: pendingProductType,
+  success: successProductType,
+  failure: failureProductType,
   products: productsType,
-  manufacturers: manufacturersType
+  manufacturers: manufacturersType,
+  availabilities: availabilitiesType
 }
 
 class App extends React.Component<Props, State> {
@@ -47,18 +84,16 @@ class App extends React.Component<Props, State> {
     this.state = {
       pending: {
         pendingProduct: false,
-        pendingAvailability: false
       },
       success: {
         successProduct: false,
-        successAvailability: false
       },
       failure: {
         failureProduct: false,
-        failureAvailability: false
       },
       products: [],
-      manufacturers: []
+      manufacturers: [],
+      availabilities: []
     }
   }
 
@@ -83,14 +118,14 @@ class App extends React.Component<Props, State> {
       headers
     }
     const url: string = process.env.REACT_APP_PROXY_URL! // TODO: Replace with production value
-    const pending: pendingType = { ...this.state.pending };
-    const success: successType = { ...this.state.success };
+    const pending: pendingProductType = { ...this.state.pending };
+    const success: successProductType = { ...this.state.success };
 
 
     pending.pendingProduct = true;
     this.setState({ pending });
 
-    const fetchProducts = async (url: string, opts: RequestInit): Promise<Array<productType> | undefined> => {
+    const fetchProducts = async (url: string, opts: RequestInit): Promise<productsType | undefined> => {
       let data: productsType;
       try {
         // Check sessionStorage
@@ -110,7 +145,8 @@ class App extends React.Component<Props, State> {
           pending.pendingProduct = false;
           success.successProduct = true;
           this.setState({ pending, success, });
-          let manufacturers: manufacturersType;
+          let manufacturers: manufacturersType; // Array of manufacturer strings
+          // let availabilities: availabilitiesType;  // Array of manufacturer objects
           data.forEach(item => {
             manufacturers = [...this.state.manufacturers]
             // Track availability per product
@@ -130,6 +166,22 @@ class App extends React.Component<Props, State> {
           if (!productsRef) {
             sessionStorage.setItem(`${product}`, JSON.stringify(data));
           }
+
+          manufacturers = [...this.state.manufacturers]
+          let availability: manufacturerType;
+          manufacturers.forEach(manufacturer => {
+            // availabilities = {...this.state.availabilities}
+            availability = {[manufacturer]: {
+              pendingAvailability: false,
+              successAvailability: false,
+              failureAvailability: false
+            }}
+            this.setState({
+              availabilities: [...this.state.availabilities, availability]
+            })
+            //this.getAvailabilities(manufacturer);
+          })
+
         } else {
           // TODO: Data is empty, handle it
         }
@@ -147,20 +199,71 @@ class App extends React.Component<Props, State> {
 
   }
 
-  protected getAvailabilities() {
-    /* When product list data is available:
-      1. Availability is determined by manufacturer, so parse data for a list of manufacturers
-      2. Issue API request per manufacturer, handling pending, success, failure for each in list
+  // protected getAvailabilities(manufacturer: string): void {
+  //   const availabilityURL: string = process.env.REACT_APP_AVAILABILITY_URL!
+  //   const webToken: string = process.env.REACT_APP_WEB_TOKEN!
+
+  //   const headers: HeadersInit = {
+  //     'Target-URL': `${availabilityURL}${manufacturer}`,
+  //     'Web-Token': webToken
+  //   }
+
+  //   const opts: RequestInit = {
+  //     headers
+  //   }
+  //   const url: string = process.env.REACT_APP_PROXY_URL! // TODO: Replace with production value
+
+  //   const fetchAvailabilities = async (url: string, opts: RequestInit): Promise<availabilitiesAPIType | undefined> => {
+  //     let data: availabilitiesAPIType;
+  //     try {
+
+  //        const response = await fetch(url, opts)
+  //        data = await response.json()
 
 
-    */
+  //       if (await data.length) {
+  //         pending.pendingProduct = false;
+  //         success.successProduct = true;
+  //         this.setState({ pending, success, });
+  //         let manufacturers: manufacturersType;
+  //         data.forEach(item => {
+  //           manufacturers = [...this.state.manufacturers]
+  //           // Track availability per product
+  //           item['availability'] = "";
+  //           if (!manufacturers.includes(item.manufacturer)) {
+  //             this.setState({
+  //               manufacturers: [...this.state.manufacturers, item.manufacturer],
+  //               products: [...this.state.products, item]
+  //             })
+  //           } else {
+  //             this.setState({
+  //               products: [...this.state.products, item]
+  //             })
+  //           }
+  //         })
+  //         // Save data to session storage if that product does not have one
+  //         if (!productsRef) {
+  //           sessionStorage.setItem(`${product}`, JSON.stringify(data));
+  //         }
+  //         manufacturers = [...this.state.manufacturers]
+  //         manufacturers.forEach(manufacturer => {
 
-  }
+  //         })
+
+  //       } else {
+  //         // TODO: Data is empty, handle it
+  //       }
+  //     } catch(err) {
+  //        // TODO: Handle text response
+  //        return err
+  //     }
+  //   }
+  // }
 
   render() {
-    const pending: pendingType = { ...this.state.pending };
-    const success: successType = { ...this.state.success };
-    const failure: failureType = { ...this.state.failure };
+    const pending: pendingProductType = { ...this.state.pending };
+    const success: successProductType = { ...this.state.success };
+    const failure: failureProductType = { ...this.state.failure };
 
     if (pending.pendingProduct && !success.successProduct) {
       // Product List API return is pending, render product list loadspinner
