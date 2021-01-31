@@ -28,15 +28,6 @@ type availabilitiesAPIType = Array<availabilityAPIType>;
 
 type availabilitiesType = Array<manufacturerType>;
 
-/*
-{
-  [key: string]: {
-    availabilityRaw: availabilitiesAPIType,
-    parsed: boolean
-  }
-}
-*/
-
 type rawType = Array<manufacturerRawType>;
 
 type manufacturerRawType = {
@@ -106,8 +97,6 @@ class App extends React.Component<Props, State> {
     let availabilityRawType: availabilityRawType;
     let manufacturer: string;
     availabilityData.forEach((item, index) => {
-      // console.log(Object.values(item)[0].parsed)
-      // console.log(Object.keys(item)[0])
       if (!Object.values(item)[0].parsed) {
         manufacturer = Object.keys(availabilityData[index])[0];
 
@@ -192,7 +181,6 @@ class App extends React.Component<Props, State> {
           productStatus.successProduct = true;
           this.setState({ productStatus });
           let manufacturers: manufacturersType; // Array of manufacturer strings
-          // let availabilities: availabilitiesType;  // Array of manufacturer objects
           data.forEach(item => {
             manufacturers = [...this.state.manufacturers]
             // Track availability per product
@@ -216,7 +204,6 @@ class App extends React.Component<Props, State> {
           manufacturers = [...this.state.manufacturers]
           let availability: manufacturerType;
           manufacturers.forEach(manufacturer => {
-            // availabilities = {...this.state.availabilities}
             availability = {[manufacturer]: {
               pendingAvailability: false,
               successAvailability: false,
@@ -273,59 +260,12 @@ class App extends React.Component<Props, State> {
           availabilities[manufacturers.indexOf(manufacturer)][manufacturer].successAvailability = true;
           this.setState({ availabilities, availabilityData });
 
-          // console.log(data.response[0].id.toLowerCase())
-
-          // let index: number;
-          // let availabilityRaw: Array<string> | null;
-          // console.log(result)
-
-          // result.forEach(av => {
-          //   availabilityRaw = av.DATAPAYLOAD.match(/<INSTOCKVALUE>(.*)<\/INSTOCKVALUE>/)
-          //   console.log(availabilityRaw)
-          //   const products: productsType = { ...this.state.products };
-          //   index = products.findIndex(product => product.id === av.id.toLowerCase());
-
-          //   // if (availabilityRaw) {
-          //   //   if (availabilityRaw[1] === "OUTOFSTOCK") {
-          //   //     products[index].availability = "Out of Stock";
-          //   //   } else if (availabilityRaw[1] === "INSTOCK") {
-          //   //     products[index].availability = "In Stock"
-          //   //   } else if (availabilityRaw[1] === "LESSTHAN10") {
-          //   //     products[index].availability = "Less Than 10"
-          //   //   }
-          //   // } else {
-          //   //   console.log('availabilityRaw null!')
-          //   //   products[index].availability = "Out of Stock"
-          //   // }
-
-          //   // this.setState({ products })
-          // })
-
-
-
-          // console.log(data)
-          // data.forEach(item => {
-          //   manufacturers = [...this.state.manufacturers]
-          //   // Track availability per product
-          //   item['availability'] = "";
-          //   if (!manufacturers.includes(item.manufacturer)) {
-          //     this.setState({
-          //       manufacturers: [...this.state.manufacturers, item.manufacturer],
-          //       products: [...this.state.products, item]
-          //     })
-          //   } else {
-          //     this.setState({
-          //       products: [...this.state.products, item]
-          //     })
-          //   }
-          // })
-
 
         } else if (await !Array.isArray(data.response) && !availabilities[manufacturers.indexOf(manufacturer)][manufacturer].successAvailability) {
           fetchAvailabilities(url, opts);
         }
       } catch(err) {
-         // TODO: Handle text response
+         // TODO: Handle
          return err
       }
     }
