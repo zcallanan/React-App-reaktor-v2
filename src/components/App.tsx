@@ -16,7 +16,7 @@ type productsType = Array<productType>;
 
 type availabilityAPIType = {
   id: string,
-  datapayload: string
+  DATAPAYLOAD: string
 }
 
 type availabilityAPIStatus = {
@@ -27,6 +27,26 @@ type availabilityAPIStatus = {
 type availabilitiesAPIType = Array<availabilityAPIType>;
 
 type availabilitiesType = Array<manufacturerType>;
+
+/*
+{
+  [key: string]: {
+    availabilityRaw: availabilitiesAPIType,
+    parsed: boolean
+  }
+}
+*/
+
+type rawType = Array<manufacturerRawType>;
+
+type manufacturerRawType = {
+  [key: string]: availabilityRawType
+}
+
+type availabilityRawType = {
+  availabilityRaw: availabilitiesAPIType,
+  parsed: boolean
+}
 
 type manufacturerType = {
   [key: string]: manufacturerAvailabilityType
@@ -52,7 +72,8 @@ interface State {
   productStatus: productStatusType,
   products: productsType,
   manufacturers: manufacturersType,
-  availabilities: availabilitiesType
+  availabilities: availabilitiesType,
+  availabilityData: rawType
 }
 
 class App extends React.Component<Props, State> {
@@ -66,7 +87,8 @@ class App extends React.Component<Props, State> {
       },
       products: [],
       manufacturers: [],
-      availabilities: []
+      availabilities: [],
+      availabilityData: []
     }
   }
 
@@ -75,6 +97,57 @@ class App extends React.Component<Props, State> {
 
     // Populate products and manufacturers state & sessionStorage
     this.getProductList(product);
+
+  }
+
+  componentDidUpdate() {
+    // const manufacturers: manufacturersType = [ ...this.state.manufacturers ];
+    const availabilityData: rawType = [ ...this.state.availabilityData ]
+    let availabilityRawType: availabilityRawType;
+    let manufacturer: string;
+    availabilityData.forEach((item, index) => {
+      // console.log(Object.values(item)[0].parsed)
+      // console.log(Object.keys(item)[0])
+      if (!Object.values(item)[0].parsed) {
+        manufacturer = Object.keys(availabilityData[index])[0];
+
+        let ind: number;
+        let tags: Array<string> | null;
+        let products: productsType;
+
+        Object.values(item)[0].availabilityRaw.forEach(value => {
+          products = [ ...this.state.products ];
+          tags = value.DATAPAYLOAD.match(/<INSTOCKVALUE>(.*)<\/INSTOCKVALUE>/);
+          ind = products.findIndex(product => product.id === value.id.toLowerCase());
+
+          const getSafe = (fn, defaultVal = null) => {
+            try {
+              return fn();
+            } catch (e) {
+              return defaultVal;
+            }
+          }
+
+          if (tags && ind) {
+            if (tags[1] === "OUTOFSTOCK") {
+              getSafe(() => products[ind].availability = "Out of Stock")
+            } else if (tags[1] === "INSTOCK") {
+              getSafe(() => products[ind].availability = "In Stock")
+            } else if (tags[1] === "LESSTHAN10") {
+              getSafe(() => products[ind].availability = "Less Than 10")
+            }
+          }
+
+          this.setState({ products })
+        })
+
+
+        availabilityData[index][manufacturer].parsed = true;
+        this.setState({availabilityData})
+
+      }
+
+    })
 
   }
 
@@ -168,57 +241,67 @@ class App extends React.Component<Props, State> {
     if (!products.length) {
       fetchProducts(url, opts);
     }
-
-
   }
 
   protected getAvailabilities(manufacturer: string): void {
 
-    const availabilityURL: string = process.env.REACT_APP_AVAILABILITY_URL!
-    const webToken: string = process.env.REACT_APP_WEB_TOKEN!
-
-    const headers: HeadersInit = {
-      'Target-URL': `${availabilityURL}${manufacturer}`,
-      'Web-Token': webToken
-    }
-
-    const opts: RequestInit = {
-      headers
-    }
-    const url: string = process.env.REACT_APP_PROXY_URL! // TODO: Replace with production value
-
-    const availabilities: availabilitiesType = [ ...this.state.availabilities ];
-    const manufacturers: manufacturersType = [...this.state.manufacturers];
-
-    availabilities[manufacturers.indexOf(manufacturer)][manufacturer].pendingAvailability = true;
-
-    this.setState({ availabilities });
-
     const fetchAvailabilities = async (url: string, opts: RequestInit): Promise<availabilityAPIStatus | undefined> => {
       let data: availabilityAPIStatus;
+      let availabilities: availabilitiesType = [ ...this.state.availabilities ];
+      let manufacturers: manufacturersType = [...this.state.manufacturers];
       try {
-
-         // Check sessionStorage
-            const manufacturerRef: string | null = sessionStorage.getItem(`${manufacturer}`)
-
-            if (manufacturerRef) {
-              // sessionStorage is available
-              data = JSON.parse(manufacturerRef);
-              // TODO: get API data and refresh stale data
-            } else {
-              // sessionStorage is not available, get data from products API
-              let response = await fetch(url, opts)
-              data = await response.json()
-              console.log(await data.response)
-            }
+          let response = await fetch(url, opts)
+          data = await response.json()
 
         if (await Array.isArray(data.response) && data.response.length) {
-          const availabilities: availabilitiesType = [ ...this.state.availabilities ]
-          const manufacturers: manufacturersType = [...this.state.manufacturers];
+          const availabilityRaw: availabilitiesAPIType = data.response;
+          const availabilityData: rawType =  [ ...this.state.availabilityData ]
+
+         // Save raw availability data to state
+          availabilityData.push(
+            {
+              [manufacturer]: {
+              availabilityRaw: availabilityRaw,
+              parsed: false
+            }
+          })
+
+          availabilities = [...this.state.availabilities];
+          manufacturers = [...this.state.manufacturers];
 
           availabilities[manufacturers.indexOf(manufacturer)][manufacturer].pendingAvailability = false;
           availabilities[manufacturers.indexOf(manufacturer)][manufacturer].successAvailability = true;
-          this.setState({ availabilities });
+          this.setState({ availabilities, availabilityData });
+
+          // console.log(data.response[0].id.toLowerCase())
+
+          // let index: number;
+          // let availabilityRaw: Array<string> | null;
+          // console.log(result)
+
+          // result.forEach(av => {
+          //   availabilityRaw = av.DATAPAYLOAD.match(/<INSTOCKVALUE>(.*)<\/INSTOCKVALUE>/)
+          //   console.log(availabilityRaw)
+          //   const products: productsType = { ...this.state.products };
+          //   index = products.findIndex(product => product.id === av.id.toLowerCase());
+
+          //   // if (availabilityRaw) {
+          //   //   if (availabilityRaw[1] === "OUTOFSTOCK") {
+          //   //     products[index].availability = "Out of Stock";
+          //   //   } else if (availabilityRaw[1] === "INSTOCK") {
+          //   //     products[index].availability = "In Stock"
+          //   //   } else if (availabilityRaw[1] === "LESSTHAN10") {
+          //   //     products[index].availability = "Less Than 10"
+          //   //   }
+          //   // } else {
+          //   //   console.log('availabilityRaw null!')
+          //   //   products[index].availability = "Out of Stock"
+          //   // }
+
+          //   // this.setState({ products })
+          // })
+
+
 
           // console.log(data)
           // data.forEach(item => {
@@ -236,17 +319,9 @@ class App extends React.Component<Props, State> {
           //     })
           //   }
           // })
-          // // Save data to session storage if that product does not have one
-          // if (!productsRef) {
-          //   sessionStorage.setItem(`${product}`, JSON.stringify(data));
-          // }
-          // manufacturers = [...this.state.manufacturers]
-          // manufacturers.forEach(manufacturer => {
 
-          // })
 
-        } else {
-          // TODO: Data is empty, handle it
+        } else if (await !Array.isArray(data.response) && !availabilities[manufacturers.indexOf(manufacturer)][manufacturer].successAvailability) {
           fetchAvailabilities(url, opts);
         }
       } catch(err) {
@@ -254,7 +329,25 @@ class App extends React.Component<Props, State> {
          return err
       }
     }
-    fetchAvailabilities(url, opts);
+    const availabilityURL: string = process.env.REACT_APP_AVAILABILITY_URL!
+    const webToken: string = process.env.REACT_APP_WEB_TOKEN!
+
+    const headers: HeadersInit = {
+      'Target-URL': `${availabilityURL}${manufacturer}`,
+      'Web-Token': webToken
+    }
+
+    const opts: RequestInit = {headers}
+
+    const url: string = process.env.REACT_APP_PROXY_URL! // TODO: Replace with production value
+    const availabilities: availabilitiesType = [ ...this.state.availabilities ];
+    const manufacturers: manufacturersType = [...this.state.manufacturers];
+    // initial fetch for a manufacturer
+    if (!availabilities[manufacturers.indexOf(manufacturer)][manufacturer].pendingAvailability) {
+      availabilities[manufacturers.indexOf(manufacturer)][manufacturer].pendingAvailability = true;
+      this.setState({ availabilities });
+      fetchAvailabilities(url, opts);
+    }
   }
 
   render() {
