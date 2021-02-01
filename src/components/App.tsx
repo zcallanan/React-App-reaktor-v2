@@ -1,4 +1,6 @@
 import React from 'react';
+import Loader from 'react-loader-spinner'
+
 
 type manufacturersType = Array<string>;
 
@@ -94,7 +96,6 @@ class App extends React.Component<Props, State> {
   componentDidUpdate() {
     // const manufacturers: manufacturersType = [ ...this.state.manufacturers ];
     const availabilityData: rawType = [ ...this.state.availabilityData ]
-    let availabilityRawType: availabilityRawType;
     let manufacturer: string;
     availabilityData.forEach((item, index) => {
       if (!Object.values(item)[0].parsed) {
@@ -293,16 +294,23 @@ class App extends React.Component<Props, State> {
   render() {
     const productStatus: productStatusType = { ...this.state.productStatus }
 
-    if (productStatus.pendingProduct && !productStatus.successProduct) {
-      // Product List API return is pending, render product list loadspinner
-    } else if (!productStatus.pendingProduct && productStatus.successProduct) {
+    if (!productStatus.pendingProduct && productStatus.successProduct) {
       // Render product list data
+      return (
+        <div>Success</div>
+      )
     } else  if (productStatus.failureProduct) {
       // Handle if no products to display
+      console.log('failure')
     }
-
     return (
-      <div>Hello Placeholder!</div>
+      <Loader
+        className="mainLoader"
+        type="Oval"
+        color="#00BFFF"
+        height={100}
+        width={100}
+      />
     )
   }
 

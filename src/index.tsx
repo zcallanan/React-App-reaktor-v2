@@ -3,6 +3,8 @@ import React from 'react';
 import { render } from 'react-dom';
 import Router from './components/Router';
 import './css/style.css';
+import "react-loader-spinner/dist/loader/css/react-spinner-loader.css"
+
 // import reportWebVitals from './reportWebVitals';
 
 
