@@ -1,6 +1,7 @@
 import React from 'react';
-import Loader from 'react-loader-spinner'
-import ProductList from './ProductList'
+import Loader from 'react-loader-spinner';
+import ProductList from './ProductList';
+import ReactPaginate from 'react-paginate';
 
 interface Props {
   slug: string
@@ -11,7 +12,8 @@ interface State {
   products: productsType,
   manufacturers: manufacturersType,
   availabilities: availabilitiesType,
-  availabilityData: rawType
+  availabilityData: rawType,
+  pagination: paginationType
 }
 
 class App extends React.Component<Props, State> {
@@ -26,16 +28,24 @@ class App extends React.Component<Props, State> {
       products: [],
       manufacturers: [],
       availabilities: [],
-      availabilityData: []
+      availabilityData: [],
+      pagination: {
+        offset: -1, // calculated in this.handlePageClick
+        numberPerPage: 20,
+        pageCount: -1, // calculated in this.handlePageClick
+        currentData: [] // init on componentDidMount, then products slice via this.handlePageClick
+      }
     }
   }
 
   componentDidMount() {
-    const product: string = this.props.slug // Product name from router slug
+    const productStatus: productStatusType = { ...this.state.productStatus }
 
     // Populate products and manufacturers state & sessionStorage
-    this.getProductList(product);
-
+    if (!productStatus.pendingProduct) {
+      const product: string = this.props.slug // Product name from router slug
+      this.getProductList(product);
+    }
   }
 
   componentDidUpdate() {
@@ -73,12 +83,20 @@ class App extends React.Component<Props, State> {
             }
           }
         })
-        this.setState({ products })
         availabilityData[index][manufacturer].parsed = true;
-        this.setState({availabilityData})
+        this.setState({ products, availabilityData })
       }
     })
   }
+
+  protected handlePageClick = (data: pageClickType): void => {
+    const pagination: paginationType = { ...this.state.pagination };
+    const products: productsType = [ ...this.state.products ];
+    let selected: number = data.selected; // (0, 1, 2, 3...)
+    pagination.offset = Math.ceil(selected * pagination.numberPerPage);
+    pagination.currentData = products.slice(pagination.offset, pagination.offset + pagination.numberPerPage)
+    this.setState({ pagination });
+  };
 
   protected getProductList(product: string): void {
     const productURL: string = process.env.REACT_APP_PRODUCT_URL!
@@ -135,8 +153,12 @@ class App extends React.Component<Props, State> {
             // Build the products list
             products.push(item)
           })
+          // Save products 0 to 19 to initial currentData
+          const pagination: paginationType = { ...this.state.pagination } // empty []
+          pagination.currentData = products.slice(0, pagination.offset + pagination.numberPerPage + 1)
           // Save the products list
-          this.setState({ products })
+          this.setState({ products, pagination })
+
           // Save data to session storage if that product does not have one
           if (!productsRef) {
             sessionStorage.setItem(`${product}`, JSON.stringify(data));
@@ -237,15 +259,35 @@ class App extends React.Component<Props, State> {
     if (!productStatus.pendingProduct && productStatus.successProduct) {
       // Render product list data
       return (
-        <ProductList
-          products={this.state.products}
-        />
+        <div className='product-list'>
+          <ProductList products={this.state.pagination.currentData}/>
+          <ReactPaginate
+            previousLabel={'previous'}
+            nextLabel={'next'}
+            breakLabel={'...'}
+            pageCount={this.state.products.length / this.state.pagination.numberPerPage}
+            marginPagesDisplayed={2}
+            pageRangeDisplayed={5}
+            onPageChange={this.handlePageClick}
+            subContainerClassName={'pages pagination'}
+            activeClassName={'active'}
+            breakClassName={'page-item'}
+            breakLinkClassName={'page-link'}
+            containerClassName={'pagination'}
+            pageClassName={'page-item'}
+            pageLinkClassName={'page-link'}
+            previousClassName={'page-item'}
+            previousLinkClassName={'page-link'}
+            nextClassName={'page-item'}
+            nextLinkClassName={'page-link'}
+          />
+        </div>
+
       )
     } else  if (productStatus.failureProduct) {
       // Handle if no products to display
       console.log('failure')
     }
-    console.log('loading')
     return (
       <Loader
         className="mainLoader"

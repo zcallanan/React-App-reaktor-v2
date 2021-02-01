@@ -4,6 +4,17 @@ declare namespace JSX {
   }
 }
 
+type paginationType = {
+  offset: number,
+  numberPerPage: number,
+  pageCount: number,
+  currentData: productsType
+}
+
+type pageClickType = {
+  selected: number
+}
+
 type productType = {
   color: Array<string>,
   id: string,
@@ -40,7 +51,7 @@ type manufacturerRawType = {
 
 type availabilityRawType = {
   availabilityRaw: availabilitiesAPIType,
-  parsed: boolean
+  parsed: boolean,
 }
 
 type manufacturerType = {
