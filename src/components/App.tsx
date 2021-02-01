@@ -1,61 +1,6 @@
 import React from 'react';
 import Loader from 'react-loader-spinner'
-
-
-type manufacturersType = Array<string>;
-
-type productType = {
-  color: Array<string>,
-  id: string,
-  manufacturer: string,
-  name: string,
-  price: number,
-  type: string,
-  availability: string
-}
-
-type productsType = Array<productType>;
-
-type availabilityAPIType = {
-  id: string,
-  DATAPAYLOAD: string
-}
-
-type availabilityAPIStatus = {
-  code: number,
-  response: availabilitiesAPIType
-}
-
-type availabilitiesAPIType = Array<availabilityAPIType>;
-
-type availabilitiesType = Array<manufacturerType>;
-
-type rawType = Array<manufacturerRawType>;
-
-type manufacturerRawType = {
-  [key: string]: availabilityRawType
-}
-
-type availabilityRawType = {
-  availabilityRaw: availabilitiesAPIType,
-  parsed: boolean
-}
-
-type manufacturerType = {
-  [key: string]: manufacturerAvailabilityType
-}
-
-type manufacturerAvailabilityType = {
-  pendingAvailability: boolean,
-  successAvailability: boolean,
-  failureAvailability: boolean
-}
-
-type productStatusType = {
-  pendingProduct: boolean,
-  successProduct: boolean,
-  failureProduct: boolean
-}
+import ProductList from './ProductList'
 
 interface Props {
   slug: string
@@ -175,22 +120,23 @@ class App extends React.Component<Props, State> {
           productStatus.pendingProduct = false;
           productStatus.successProduct = true;
           this.setState({ productStatus });
+          let products: productsType = [];
           let manufacturers: manufacturersType; // Array of manufacturer strings
           data.forEach(item => {
             manufacturers = [...this.state.manufacturers]
             // Track availability per product
             item['availability'] = "";
+            // Save unique manufacturers to state
             if (!manufacturers.includes(item.manufacturer)) {
               this.setState({
                 manufacturers: [...this.state.manufacturers, item.manufacturer],
-                products: [...this.state.products, item]
-              })
-            } else {
-              this.setState({
-                products: [...this.state.products, item]
               })
             }
+            // Build the products list
+            products.push(item)
           })
+          // Save the products list
+          this.setState({ products })
           // Save data to session storage if that product does not have one
           if (!productsRef) {
             sessionStorage.setItem(`${product}`, JSON.stringify(data));
@@ -291,7 +237,9 @@ class App extends React.Component<Props, State> {
     if (!productStatus.pendingProduct && productStatus.successProduct) {
       // Render product list data
       return (
-        <div>Success</div>
+        <ProductList
+          products={this.state.products}
+        />
       )
     } else  if (productStatus.failureProduct) {
       // Handle if no products to display
