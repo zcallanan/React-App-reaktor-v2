@@ -103,9 +103,10 @@ class App extends React.Component<Props, State> {
         let ind: number;
         let tags: Array<string> | null;
         let products: productsType;
+        products = [ ...this.state.products ];
 
         Object.values(item)[0].availabilityRaw.forEach(value => {
-          products = [ ...this.state.products ];
+
           tags = value.DATAPAYLOAD.match(/<INSTOCKVALUE>(.*)<\/INSTOCKVALUE>/);
           ind = products.findIndex(product => product.id === value.id.toLowerCase());
 
@@ -126,18 +127,12 @@ class App extends React.Component<Props, State> {
               getSafe(() => products[ind].availability = "Less Than 10")
             }
           }
-
-          this.setState({ products })
         })
-
-
+        this.setState({ products })
         availabilityData[index][manufacturer].parsed = true;
         this.setState({availabilityData})
-
       }
-
     })
-
   }
 
   protected getProductList(product: string): void {
@@ -302,6 +297,7 @@ class App extends React.Component<Props, State> {
       // Handle if no products to display
       console.log('failure')
     }
+    console.log('loading')
     return (
       <Loader
         className="mainLoader"
