@@ -94,7 +94,6 @@ class App extends React.Component<Props, State> {
   }
 
   componentDidUpdate() {
-    // const manufacturers: manufacturersType = [ ...this.state.manufacturers ];
     const availabilityData: rawType = [ ...this.state.availabilityData ]
     let manufacturer: string;
     availabilityData.forEach((item, index) => {
