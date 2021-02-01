@@ -20,7 +20,7 @@ class ProductList extends React.Component<Props> {
     }
 
     return(
-      <div className="card-list">
+      <div className="product-card-list">
         {productCards}
       </div>
     )
