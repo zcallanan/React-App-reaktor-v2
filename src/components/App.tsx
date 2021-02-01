@@ -89,10 +89,10 @@ class App extends React.Component<Props, State> {
     })
   }
 
-  protected handlePageClick = (data) => {
+  protected handlePageClick = (data: pageClickType): void => {
     const pagination: paginationType = { ...this.state.pagination };
     const products: productsType = [ ...this.state.products ];
-    let selected = data.selected; // (0, 1, 2, 3...)
+    let selected: number = data.selected; // (0, 1, 2, 3...)
     pagination.offset = Math.ceil(selected * pagination.numberPerPage);
     pagination.currentData = products.slice(pagination.offset, pagination.offset + pagination.numberPerPage)
     this.setState({ pagination });
@@ -155,7 +155,7 @@ class App extends React.Component<Props, State> {
           })
           // Save products 0 to 19 to initial currentData
           const pagination: paginationType = { ...this.state.pagination } // empty []
-          pagination.currentData = products.slice(0, pagination.offset + pagination.numberPerPage)
+          pagination.currentData = products.slice(0, pagination.offset + pagination.numberPerPage + 1)
           // Save the products list
           this.setState({ products, pagination })
 
@@ -265,15 +265,12 @@ class App extends React.Component<Props, State> {
             previousLabel={'previous'}
             nextLabel={'next'}
             breakLabel={'...'}
-            // breakClassName={'break-me'}
             pageCount={this.state.products.length / this.state.pagination.numberPerPage}
             marginPagesDisplayed={2}
             pageRangeDisplayed={5}
             onPageChange={this.handlePageClick}
-            // containerClassName={'pagination'}
             subContainerClassName={'pages pagination'}
             activeClassName={'active'}
-
             breakClassName={'page-item'}
             breakLinkClassName={'page-link'}
             containerClassName={'pagination'}
@@ -283,8 +280,6 @@ class App extends React.Component<Props, State> {
             previousLinkClassName={'page-link'}
             nextClassName={'page-item'}
             nextLinkClassName={'page-link'}
-            // activeClassName={'active'}
-
           />
         </div>
 

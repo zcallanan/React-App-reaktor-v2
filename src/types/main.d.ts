@@ -11,6 +11,10 @@ type paginationType = {
   currentData: productsType
 }
 
+type pageClickType = {
+  selected: number
+}
+
 type productType = {
   color: Array<string>,
   id: string,
