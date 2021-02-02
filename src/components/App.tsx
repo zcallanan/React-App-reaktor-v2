@@ -1,6 +1,6 @@
 import React from 'react';
-import Loader from 'react-loader-spinner';
 import ProductList from './ProductList';
+import Spinner from 'react-bootstrap/Spinner';
 import ReactPaginate from 'react-paginate';
 
 interface Props {
@@ -31,7 +31,7 @@ class App extends React.Component<Props, State> {
       availabilityData: [],
       pagination: {
         offset: -1, // calculated in this.handlePageClick
-        numberPerPage: 20,
+        numberPerPage: 10,
         pageCount: -1, // calculated in this.handlePageClick
         currentData: [] // init on componentDidMount, then products slice via this.handlePageClick
       }
@@ -61,19 +61,20 @@ class App extends React.Component<Props, State> {
         products = [ ...this.state.products ];
 
         const getSafe = (fn, defaultVal = null) => {
-            try {
-              return fn();
-            } catch (e) {
-              return defaultVal;
-            }
+          // Try returns products[ind].availability that are not null, catch discards the rest
+          try {
+            return fn();
+          } catch (e) {
+            return defaultVal;
           }
+        }
 
         Object.values(item)[0].availabilityRaw.forEach(value => {
-
           tags = value.DATAPAYLOAD.match(/<INSTOCKVALUE>(.*)<\/INSTOCKVALUE>/);
           ind = products.findIndex(product => product.id === value.id.toLowerCase());
 
           if (tags) {
+            // product[ind].availability can be null, as products is a lot smaller list than all manufacturer listings
             if (tags[1] === "OUTOFSTOCK") {
               getSafe(() => products[ind].availability = "Out of Stock")
             } else if (tags[1] === "INSTOCK") {
@@ -289,13 +290,9 @@ class App extends React.Component<Props, State> {
       console.log('failure')
     }
     return (
-      <Loader
-        className="mainLoader"
-        type="Oval"
-        color="#00BFFF"
-        height={100}
-        width={100}
-      />
+      <Spinner animation="border" role="status" variant="primary">
+        <span className="sr-only">Loading...</span>
+      </Spinner>
     )
   }
 
