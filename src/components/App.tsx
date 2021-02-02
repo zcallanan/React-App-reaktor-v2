@@ -8,18 +8,20 @@ interface Props {
 }
 
 interface State {
+  controller: AbortController,
   productStatus: productStatusType,
   products: productsType,
   manufacturers: manufacturersType,
   availabilities: availabilitiesType,
   availabilityData: rawType,
-  pagination: paginationType
+  pagination: paginationType,
 }
 
 class App extends React.Component<Props, State> {
   constructor(props: any) {
     super(props);
     this.state = {
+      controller: new AbortController(),
       productStatus: {
         pendingProduct: false,
         successProduct: false,
@@ -39,13 +41,15 @@ class App extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const productStatus: productStatusType = { ...this.state.productStatus }
+    const productStatus: productStatusType = { ...this.state.productStatus };
 
     // Populate products and manufacturers state & sessionStorage
     if (!productStatus.pendingProduct) {
       const product: string = this.props.slug // Product name from router slug
       this.getProductList(product);
     }
+    this.selectedProduct()
+    this.setupNavClick()
   }
 
   componentDidUpdate() {
@@ -90,6 +94,11 @@ class App extends React.Component<Props, State> {
     })
   }
 
+  componentWillUnmount() {
+    const controller = this.state.controller;
+    controller.abort()
+  }
+
   protected handlePageClick = (data: pageClickType): void => {
     const pagination: paginationType = { ...this.state.pagination };
     const products: productsType = [ ...this.state.products ];
@@ -102,6 +111,9 @@ class App extends React.Component<Props, State> {
   protected getProductList(product: string): void {
     const productURL: string = process.env.REACT_APP_PRODUCT_URL!
     const webToken: string = process.env.REACT_APP_WEB_TOKEN!
+    const productStatus: productStatusType = { ...this.state.productStatus };
+    const controller = this.state.controller;
+    const signal = controller.signal;
 
     const headers: HeadersInit = {
       'Target-URL': `${productURL}${product}`,
@@ -109,10 +121,10 @@ class App extends React.Component<Props, State> {
     }
 
     const opts: RequestInit = {
-      headers
+      headers,
+      signal
     }
     const url: string = process.env.REACT_APP_PROXY_URL! // TODO: Replace with production value
-    const productStatus: productStatusType = { ...this.state.productStatus };
 
     productStatus.pendingProduct = true;
     this.setState({ productStatus });
@@ -129,6 +141,7 @@ class App extends React.Component<Props, State> {
           // TODO: get API data and refresh stale data
         } else {
           // sessionStorage is not available, get data from products API
+
           const response = await fetch(url, opts)
           data = await response.json()
         }
@@ -235,13 +248,18 @@ class App extends React.Component<Props, State> {
     }
     const availabilityURL: string = process.env.REACT_APP_AVAILABILITY_URL!
     const webToken: string = process.env.REACT_APP_WEB_TOKEN!
+    const controller = this.state.controller;
+    const signal = controller.signal;
 
     const headers: HeadersInit = {
       'Target-URL': `${availabilityURL}${manufacturer}`,
       'Web-Token': webToken
     }
 
-    const opts: RequestInit = {headers}
+    const opts: RequestInit = {
+      headers,
+      signal
+    }
 
     const url: string = process.env.REACT_APP_PROXY_URL! // TODO: Replace with production value
     const availabilities: availabilitiesType = [ ...this.state.availabilities ];
@@ -251,6 +269,48 @@ class App extends React.Component<Props, State> {
       availabilities[manufacturers.indexOf(manufacturer)][manufacturer].pendingAvailability = true;
       this.setState({ availabilities });
       fetchAvailabilities(url, opts);
+    }
+  }
+
+  protected setupNavClick() {
+    const beanies: Element | null = document.querySelector('.beanies-nav');
+    const facemasks: Element | null = document.querySelector('.facemasks-nav');
+    const gloves: Element | null = document.querySelector('.gloves-nav');
+    const beaniesLink: Element | null = document.querySelector('.beanies-link');
+    const facemasksLink: Element | null = document.querySelector('.facemasks-link');
+    const glovesLink: Element | null = document.querySelector('.gloves-link');
+
+    const handleNavClick = e => {
+      // Clicked product should be only active product in nav
+      if (beaniesLink !== null && beaniesLink === e.target) {
+        glovesLink!.classList.remove('active');
+        facemasksLink!.classList.remove('active');
+      } else if (facemasksLink !== null && facemasksLink === e.target) {
+        beaniesLink!.classList.remove('active');
+        glovesLink!.classList.remove('active');
+      } else if (glovesLink !== null && glovesLink === e.target) {
+        beaniesLink!.classList.remove('active');
+        facemasksLink!.classList.remove('active');
+      }
+
+      e.target.classList.add("active");
+    }
+    beanies?.addEventListener("click", handleNavClick);
+    facemasks?.addEventListener("click", handleNavClick);
+    gloves?.addEventListener("click", handleNavClick);
+  }
+
+  protected selectedProduct() {
+    // Select the nav product in view at load
+    if (this.props.slug === 'beanies') {
+      const beaniesLink: Element | null = document.querySelector('.beanies-link');
+      beaniesLink!.classList.add('active');
+    } else if (this.props.slug === 'facemasks') {
+      const facemasksLink: Element | null = document.querySelector('.facemasks-link');
+      facemasksLink!.classList.add('active');
+    } else if (this.props.slug === 'gloves') {
+      const glovesLink: Element | null = document.querySelector('.gloves-link');
+      glovesLink!.classList.add('active');
     }
   }
 
