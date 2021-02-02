@@ -1,6 +1,6 @@
 import React from 'react';
-import Loader from 'react-loader-spinner';
 import ProductList from './ProductList';
+import Spinner from 'react-bootstrap/Spinner';
 import ReactPaginate from 'react-paginate';
 
 interface Props {
@@ -31,7 +31,7 @@ class App extends React.Component<Props, State> {
       availabilityData: [],
       pagination: {
         offset: -1, // calculated in this.handlePageClick
-        numberPerPage: 20,
+        numberPerPage: 10,
         pageCount: -1, // calculated in this.handlePageClick
         currentData: [] // init on componentDidMount, then products slice via this.handlePageClick
       }
@@ -290,13 +290,9 @@ class App extends React.Component<Props, State> {
       console.log('failure')
     }
     return (
-      <Loader
-        className="mainLoader"
-        type="Oval"
-        color="#00BFFF"
-        height={100}
-        width={100}
-      />
+      <Spinner animation="border" role="status" variant="primary">
+        <span className="sr-only">Loading...</span>
+      </Spinner>
     )
   }
 
