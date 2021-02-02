@@ -60,12 +60,7 @@ class App extends React.Component<Props, State> {
         let products: productsType;
         products = [ ...this.state.products ];
 
-        Object.values(item)[0].availabilityRaw.forEach(value => {
-
-          tags = value.DATAPAYLOAD.match(/<INSTOCKVALUE>(.*)<\/INSTOCKVALUE>/);
-          ind = products.findIndex(product => product.id === value.id.toLowerCase());
-
-          const getSafe = (fn, defaultVal = null) => {
+        const getSafe = (fn, defaultVal = null) => {
             try {
               return fn();
             } catch (e) {
@@ -73,7 +68,12 @@ class App extends React.Component<Props, State> {
             }
           }
 
-          if (tags && ind) {
+        Object.values(item)[0].availabilityRaw.forEach(value => {
+
+          tags = value.DATAPAYLOAD.match(/<INSTOCKVALUE>(.*)<\/INSTOCKVALUE>/);
+          ind = products.findIndex(product => product.id === value.id.toLowerCase());
+
+          if (tags) {
             if (tags[1] === "OUTOFSTOCK") {
               getSafe(() => products[ind].availability = "Out of Stock")
             } else if (tags[1] === "INSTOCK") {
