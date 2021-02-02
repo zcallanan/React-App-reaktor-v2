@@ -61,19 +61,20 @@ class App extends React.Component<Props, State> {
         products = [ ...this.state.products ];
 
         const getSafe = (fn, defaultVal = null) => {
-            try {
-              return fn();
-            } catch (e) {
-              return defaultVal;
-            }
+          // Try returns products[ind].availability that are not null, catch discards the rest
+          try {
+            return fn();
+          } catch (e) {
+            return defaultVal;
           }
+        }
 
         Object.values(item)[0].availabilityRaw.forEach(value => {
-
           tags = value.DATAPAYLOAD.match(/<INSTOCKVALUE>(.*)<\/INSTOCKVALUE>/);
           ind = products.findIndex(product => product.id === value.id.toLowerCase());
 
           if (tags) {
+            // product[ind].availability can be null, as products is a lot smaller list than all manufacturer listings
             if (tags[1] === "OUTOFSTOCK") {
               getSafe(() => products[ind].availability = "Out of Stock")
             } else if (tags[1] === "INSTOCK") {
