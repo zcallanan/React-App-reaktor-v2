@@ -15,7 +15,7 @@ class ProductCard extends React.Component<Props> {
         </Spinner>
       )
     }
-    return (<p>{string}</p>);
+    return (<p className="product-availability">{string}</p>);
   }
 
   render() {
