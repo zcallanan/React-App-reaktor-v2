@@ -8,7 +8,9 @@ interface Props {
 class Facemasks extends React.Component<Props> {
   render() {
     return(
-      <App slug={this.props.slug} />
+      <div className="container">
+        <App slug={this.props.slug} />
+      </div>
     )
   }
 }
