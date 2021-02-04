@@ -20,11 +20,11 @@ const Router = () => (
         <li className="nav-item beanies-nav">
           <Link className="nav-link beanies-link" to="/clothing/beanies">Beanies</Link>
         </li>
-        <li className="nav-item gloves-nav">
-          <Link className="nav-link gloves-link" to="/clothing/gloves">Gloves</Link>
-        </li>
         <li className="nav-item facemasks-nav">
           <Link className="nav-link facemasks-link" to="/clothing/facemasks">Facemasks</Link>
+        </li>
+        <li className="nav-item gloves-nav">
+          <Link className="nav-link gloves-link" to="/clothing/gloves">Gloves</Link>
         </li>
       </ul>
     </nav>
