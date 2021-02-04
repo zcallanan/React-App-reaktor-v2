@@ -1,8 +1,9 @@
-// import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap/dist/css/bootstrap.css';
 import React from 'react';
 import { render } from 'react-dom';
 import Router from './components/Router';
 import './css/style.css';
+
 // import reportWebVitals from './reportWebVitals';
 
 
