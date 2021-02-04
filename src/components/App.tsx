@@ -117,7 +117,8 @@ class App extends React.Component<Props, State> {
 
     const headers: HeadersInit = {
       'Target-URL': `${productURL}${product}`,
-      'Web-Token': webToken
+      'Web-Token': webToken,
+      'Version': 'v2'
     }
 
     const opts: RequestInit = {
@@ -253,7 +254,8 @@ class App extends React.Component<Props, State> {
 
     const headers: HeadersInit = {
       'Target-URL': `${availabilityURL}${manufacturer}`,
-      'Web-Token': webToken
+      'Web-Token': webToken,
+      'Version': 'v2'
     }
 
     const opts: RequestInit = {
