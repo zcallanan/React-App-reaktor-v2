@@ -33,7 +33,7 @@ class App extends React.Component<Props, State> {
       availabilityData: [],
       pagination: {
         offset: -1, // calculated in this.handlePageClick
-        numberPerPage: 10,
+        numberPerPage: 30,
         pageCount: -1, // calculated in this.handlePageClick
         currentData: [] // init on componentDidMount, then products slice via this.handlePageClick
       }
@@ -350,9 +350,11 @@ class App extends React.Component<Props, State> {
       console.log('failure')
     }
     return (
-      <Spinner animation="border" role="status" variant="primary">
-        <span className="sr-only">Loading...</span>
-      </Spinner>
+      <div className="spinner-div">
+        <Spinner animation="border" role="status" variant="primary" className="product-spinner">
+          <span className="sr-only">Loading...</span>
+        </Spinner>
+      </div>
     )
   }
 

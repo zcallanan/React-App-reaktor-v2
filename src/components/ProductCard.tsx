@@ -15,7 +15,7 @@ class ProductCard extends React.Component<Props> {
         </Spinner>
       )
     }
-    return (<p>{string}</p>);
+    return (<p className="product-availability">{string}</p>);
   }
 
   render() {
@@ -37,16 +37,16 @@ class ProductCard extends React.Component<Props> {
 
     return (
       <div className="product-card">
-        <div>
-          <p className="product-manufacturer">Manufacturer: {capitalizeFirstLetter(cardData.manufacturer)}</p>
-          <p className="product-name">Name: {capitalizeFirstLetter(cardData.name)}</p>
+        <div className="product-info-left">
+          <p className="product-manufacturer"><strong>Manufacturer:</strong> {capitalizeFirstLetter(cardData.manufacturer)}</p>
+          <p className="product-name"><strong>Name:</strong> {capitalizeFirstLetter(cardData.name)}</p>
         </div>
-        <div>
-          <p className="product-price">Price: {cardData.price}</p>
-          <p className="">Colors: {colors}</p>
+        <div className="product-info-center">
+          <p className="product-price"><strong>Price:</strong> {cardData.price}</p>
+          <p className="product-colors"><strong>Colors:</strong> {colors}</p>
         </div>
 
-        <div>
+        <div className="product-info-right">
           {this.getAvailability(cardData.availability)}
         </div>
 
