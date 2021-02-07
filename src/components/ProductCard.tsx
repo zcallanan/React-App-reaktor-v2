@@ -1,6 +1,6 @@
 import React from 'react';
 import Spinner from 'react-bootstrap/Spinner';
-import { capitalizeFirstLetter } from '../helpers';
+import capitalizeFirstLetter from '../helpers/capitalizeFirstLetter';
 
 interface Props {
   cardData: productType
