@@ -1,4 +1,4 @@
-export const capitalizeFirstLetter = (string: string): string => {
+const capitalizeFirstLetter = (string: string): string => {
   return string
     .toLowerCase()
     .split(' ')
@@ -7,3 +7,6 @@ export const capitalizeFirstLetter = (string: string): string => {
     })
     .join(' ');
 };
+
+export default capitalizeFirstLetter;
+
