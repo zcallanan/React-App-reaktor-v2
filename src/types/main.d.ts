@@ -27,45 +27,11 @@ type productType = {
 
 type productsType = Array<productType>;
 
-type manufacturersType = Array<string>;
-
-type availabilityAPIType = {
-  id: string,
-  DATAPAYLOAD: string
-}
-
-type availabilityAPIStatus = {
-  code: number,
-  response: availabilitiesAPIType
-}
-
-type availabilitiesAPIType = Array<availabilityAPIType>;
-
-type availabilitiesType = Array<manufacturerType>;
-
-type rawType = Array<manufacturerRawType>;
-
-type manufacturerRawType = {
-  [key: string]: availabilityRawType
-}
-
-type availabilityRawType = {
-  availabilityRaw: availabilitiesAPIType,
-  parsed: boolean,
-}
-
-type manufacturerType = {
-  [key: string]: manufacturerAvailabilityType
-}
-
-type manufacturerAvailabilityType = {
-  pendingAvailability: boolean,
-  successAvailability: boolean,
-  failureAvailability: boolean
+type productsAPIType = {
+  rows: Array<productType>;
 }
 
 type productStatusType = {
   pendingProduct: boolean,
-  successProduct: boolean,
-  failureProduct: boolean
+  successProduct: boolean
 }

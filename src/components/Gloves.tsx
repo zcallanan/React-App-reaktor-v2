@@ -6,7 +6,6 @@ interface Props {
 }
 
 class Gloves extends React.Component<Props> {
-
   render() {
     return(
       <div className="container">

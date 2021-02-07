@@ -1,6 +1,6 @@
 import React from 'react';
 import Spinner from 'react-bootstrap/Spinner';
-import { capitalizeFirstLetter } from '../helpers';
+import capitalizeFirstLetter from '../helpers/capitalizeFirstLetter';
 
 interface Props {
   cardData: productType
@@ -20,20 +20,6 @@ class ProductCard extends React.Component<Props> {
 
   render() {
     const cardData: productType = this.props.cardData;
-    let colors: string = "";
-    if (cardData.color.length > 1) {
-      cardData.color.forEach((color, index) => {
-        if (cardData.color.length - 1 === index){
-          colors += `${color}`
-        } else {
-          colors += `${color} | `
-        }
-
-      })
-    } else {
-      colors = cardData.color[0];
-    }
-
 
     return (
       <div className="product-card">
@@ -43,14 +29,12 @@ class ProductCard extends React.Component<Props> {
         </div>
         <div className="product-info-center">
           <p className="product-price"><strong>Price:</strong> {cardData.price}</p>
-          <p className="product-colors"><strong>Colors:</strong> {colors}</p>
+          <p className="product-colors"><strong>Colors:</strong> {cardData.color}</p>
         </div>
 
         <div className="product-info-right">
           {this.getAvailability(cardData.availability)}
         </div>
-
-
       </div>
     )
   }
