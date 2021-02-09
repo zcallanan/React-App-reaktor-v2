@@ -16,7 +16,7 @@ type pageClickType = {
 }
 
 type productType = {
-  color: Array<string>,
+  color: string,
   id: string,
   manufacturer: string,
   name: string,

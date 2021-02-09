@@ -28,8 +28,8 @@ class ProductCard extends React.Component<Props> {
           <p className="product-name"><strong>Name:</strong> {capitalizeFirstLetter(cardData.name)}</p>
         </div>
         <div className="product-info-center">
-          <p className="product-price"><strong>Price:</strong> {cardData.price}</p>
-          <p className="product-colors"><strong>Colors:</strong> {cardData.color}</p>
+          <p className="product-price"><strong>Price:</strong> {cardData.price} €</p>
+          <p className="product-colors"><strong>Colors:</strong> {capitalizeFirstLetter(cardData.color)}</p>
         </div>
 
         <div className="product-info-right">
