@@ -18,6 +18,8 @@
 .env.test.local
 .env.production.local
 .env*
+.eslintcache
+.cache
 
 npm-debug.log*
 yarn-debug.log*
