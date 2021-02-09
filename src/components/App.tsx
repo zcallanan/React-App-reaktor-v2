@@ -110,7 +110,7 @@ class App extends React.Component<Props, State> {
 
         }
       } catch(err) {
-         // TODO: Handle text response
+         console.log(err)
          return err
       }
     }
