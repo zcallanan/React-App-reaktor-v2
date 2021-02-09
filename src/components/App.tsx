@@ -66,9 +66,9 @@ class App extends React.Component<Props, State> {
     const signal = controller.signal;
 
     const headers: HeadersInit = {
-      'Web-Token': webToken,
-      'Version': 'v2',
-      'Product': product
+      'X-WEB-TOKEN': webToken,
+      'X-VERSION': 'v2',
+      'X-PRODUCT': product
     }
 
     const opts: RequestInit = {
