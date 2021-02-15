@@ -75,7 +75,7 @@ class App extends React.Component<Props, State> {
       headers,
       signal
     }
-    const url: string = process.env.REACT_APP_PROXY_URL! // TODO: Replace with production value
+    const url: string = process.env.REACT_APP_PROXY_URL!
 
     productStatus.pendingProduct = true;
     this.setState({ productStatus });
