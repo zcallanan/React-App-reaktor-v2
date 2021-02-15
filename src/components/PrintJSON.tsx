@@ -69,15 +69,15 @@ class PrettyPrintJson extends React.Component<Props, State> {
   protected getProductList(product: string): void {
     const webToken: string = process.env.REACT_APP_WEB_TOKEN!
     const headers: HeadersInit = {
-        'Web-Token': webToken,
-        'Version': 'v2',
-        'Product': product
+        'X-WEB-TOKEN': webToken,
+        'X-VERSION': 'v2',
+        'X-PRODUCT': product
       }
 
       const opts: RequestInit = {
         headers
       }
-      const url: string = process.env.REACT_APP_PROXY_URL! // TODO: Replace with production value
+      const url: string = process.env.REACT_APP_PROXY_URL!
 
     const fetchProducts = async (url: string, opts: RequestInit): Promise<productsType | undefined> => {
       let data: productsAPIType;
