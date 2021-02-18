@@ -128,7 +128,7 @@ class PrettyPrintJson extends React.Component<Props, State> {
   render() {
     const products: productsType = { ...this.state.products };
     return (
-      <div >
+      <div className="json-div">
         <pre>
           <span className="pre-font">
             {JSON.stringify(products, null, 2) }
