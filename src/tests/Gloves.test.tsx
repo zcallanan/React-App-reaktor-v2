@@ -1,7 +1,5 @@
 import React from "react";
 import Router from '../components/Router';
-import Beanies from '../components/Beanies';
-import Facemasks from '../components/Facemasks';
 import Gloves from '../components/Gloves';
 import { MemoryRouter } from "react-router-dom";
 import { act } from 'react-dom/test-utils';
@@ -20,6 +18,7 @@ describe('<Glove> Component Tests', () => {
       {"id":"1b1610b94d3d1d701b0","type":"gloves","name":"HEMFOLNY SLIP METROPOLIS","color":"black","price":54,"manufacturer":"juuran","availability":"Out of Stock"}
     ]
   }))
+
   test('Glove Product List component displayed', async () => {
     let component;
     await act( async () => {
@@ -30,7 +29,7 @@ describe('<Glove> Component Tests', () => {
     component.unmount()
   })
 
-  test('Product Card components are displayed', async () => {
+  test('Glove Product Card components are displayed', async () => {
     let component;
     await act( async () => {
       component = mount(<MemoryRouter initialEntries={["/v2/gloves"]} ><Gloves slug="gloves" /></MemoryRouter>)
