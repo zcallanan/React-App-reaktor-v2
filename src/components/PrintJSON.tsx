@@ -33,16 +33,19 @@ class PrettyPrintJson extends React.Component<Props, State> {
 
     const handleNavClick = e => {
       // Clicked product should be only active product in nav
-      if (beaniesLink !== null && beaniesLink === e.target) {
-        glovesLink!.classList.remove('active');
-        facemasksLink!.classList.remove('active');
-      } else if (facemasksLink !== null && facemasksLink === e.target) {
-        beaniesLink!.classList.remove('active');
-        glovesLink!.classList.remove('active');
-      } else if (glovesLink !== null && glovesLink === e.target) {
-        beaniesLink!.classList.remove('active');
-        facemasksLink!.classList.remove('active');
+      if (glovesLink !== null && beaniesLink !== null && facemasksLink !== null ) {
+        if (beaniesLink === e.target) {
+          glovesLink!.classList.remove('active');
+          facemasksLink!.classList.remove('active');
+        } else if (facemasksLink === e.target) {
+          beaniesLink!.classList.remove('active');
+          glovesLink!.classList.remove('active');
+        } else if (glovesLink === e.target) {
+          beaniesLink!.classList.remove('active');
+          facemasksLink!.classList.remove('active');
+        }
       }
+
 
       e.target.classList.add("active");
     }
@@ -56,13 +59,19 @@ class PrettyPrintJson extends React.Component<Props, State> {
     // Select the nav product in view at load
     if (this.props.slug === 'beanies') {
       const beaniesLink: Element | null = document.querySelector('.beanies-link');
-      beaniesLink!.classList.add('active');
+      if (beaniesLink !== null) {
+        beaniesLink!.classList.add('active');
+      }
     } else if (this.props.slug === 'facemasks') {
       const facemasksLink: Element | null = document.querySelector('.facemasks-link');
-      facemasksLink!.classList.add('active');
+      if (facemasksLink !== null) {
+        facemasksLink!.classList.add('active');
+      }
     } else if (this.props.slug === 'gloves') {
       const glovesLink: Element | null = document.querySelector('.gloves-link');
-      glovesLink!.classList.add('active');
+      if (glovesLink !== null) {
+        glovesLink!.classList.add('active');
+      }
     }
   }
 
@@ -77,7 +86,14 @@ class PrettyPrintJson extends React.Component<Props, State> {
       const opts: RequestInit = {
         headers
       }
-      const url: string = process.env.REACT_APP_PROXY_URL!
+
+      let url: string;
+      if (process.env.NODE_ENV === 'test') {
+        // Testing requires a string
+        url = 'http://localhost:3010/';
+      } else {
+        url = process.env.REACT_APP_PROXY_URL!
+      }
 
     const fetchProducts = async (url: string, opts: RequestInit): Promise<productsType | undefined> => {
       let data: productsAPIType;

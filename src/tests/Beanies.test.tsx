@@ -1,8 +1,10 @@
 import React from "react";
 import Router from '../components/Router';
 import Beanies from '../components/Beanies';
+import PrintJSON from '../components/PrintJSON';
 import { MemoryRouter } from "react-router-dom";
 import { act } from 'react-dom/test-utils';
+import isJSON from '../helpers/is-json';
 
 import Enzyme from 'enzyme';
 import Adapter from '@wojtekmaj/enzyme-adapter-react-17';
@@ -52,6 +54,18 @@ describe('<Beanies> Component Tests', () => {
     expect(component.find('.product-availability').first().text().includes('In Stock')).toBe(true);
     expect(component.find('.product-availability').at(1).text().includes('Less Than 10')).toBe(true);
     expect(component.find('.product-availability').last().text().includes('Out of Stock')).toBe(true);
+    component.unmount()
+  })
+
+  test('Beanies PrintJSON component', async () => {
+    let component;
+    await act( async () => {
+      component = mount(<MemoryRouter initialEntries={["/v2/api/beanies"]} ><PrintJSON slug="beanies" /></MemoryRouter>)
+    });
+    component.update()
+    expect(component.find(PrintJSON)).toHaveLength(1);
+    // Test if valid JSON is displayed
+    expect(isJSON(component.find('span').children().text())).toBe(true);
     component.unmount()
   })
 })
