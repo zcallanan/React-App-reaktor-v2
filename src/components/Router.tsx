@@ -1,19 +1,13 @@
 import React from 'react';
-import { BrowserRouter, Route, Switch, RouteComponentProps, Link } from 'react-router-dom';
+import { BrowserRouter, Route, Switch, Link } from 'react-router-dom';
 import Gloves from './Gloves';
 import Beanies from './Beanies';
 import Facemasks from './Facemasks';
 import NotFound from './NotFound';
 import PrintJSON from './PrintJSON';
 
-interface MatchParams {
-    slug: string;
-}
-
-interface MatchProps extends RouteComponentProps<MatchParams> {
-}
-
 const Router = () => (
+
   <BrowserRouter>
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <ul className="navbar-nav">
@@ -30,18 +24,24 @@ const Router = () => (
     </nav>
     <Switch>
       {/* If slug is one of three products, send slug to App as prop */}
-      <Route path="/v2/gloves" render={( {match}: MatchProps) =>
-        ( <Gloves slug="gloves" /> )} />
-      <Route path="/v2/beanies" render={( {match}: MatchProps) =>
-        ( <Beanies slug="beanies" /> )} />
-      <Route path="/v2/facemasks" render={( {match}: MatchProps) =>
-        ( <Facemasks slug="facemasks" /> )} />
-      <Route path="/v2/api/gloves/" render={( {match}: MatchProps) =>
-        ( <PrintJSON slug="gloves" /> )} />
-      <Route path="/v2/api/beanies/" render={( {match}: MatchProps) =>
-        ( <PrintJSON slug="beanies" /> )} />
-      <Route path="/v2/api/facemasks/" render={( {match}: MatchProps) =>
-        ( <PrintJSON slug="facemasks" /> )} />
+      <Route path="/v2/beanies">
+         <Beanies slug="beanies" />
+      </Route>
+      <Route path="/v2/facemasks">
+         <Facemasks slug="facemasks" />
+      </Route>
+      <Route path="/v2/gloves">
+         <Gloves slug="gloves" />
+      </Route>
+      <Route path="/v2/api/beanies">
+         <PrintJSON slug="beanies" />
+      </Route>
+      <Route path="/v2/api/facemasks">
+         <PrintJSON slug="facemasks" />
+      </Route>
+      <Route path="/v2/api/gloves">
+         <PrintJSON slug="gloves" />
+      </Route>
       {/* Handle all other routes */}
       <Route component={NotFound} />
     </Switch>
