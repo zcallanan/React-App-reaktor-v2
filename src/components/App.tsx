@@ -39,6 +39,7 @@ class App extends React.Component<Props, State> {
     // Populate products and manufacturers state & sessionStorage
     if (!productStatus.pendingProduct) {
       const product: string = this.props.slug // Product name from router slug
+      console.log('product:', product)
       this.getProductList(product);
     }
     this.selectedProduct()

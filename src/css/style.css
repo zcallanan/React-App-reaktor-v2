@@ -53,3 +53,10 @@ p {
 .json-div {
   margin-left: 11%;
 }
+.page-link {
+  color: #343a40;
+}
+.pagination>li.active>a {
+  background-color: #343a40 !important;
+  border-color: #343a40 !important;
+}
