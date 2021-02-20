@@ -1,5 +1,4 @@
 import React from "react";
-import Router from '../components/Router';
 import Beanies from '../components/Beanies';
 import PrintJSON from '../components/PrintJSON';
 import { MemoryRouter } from "react-router-dom";

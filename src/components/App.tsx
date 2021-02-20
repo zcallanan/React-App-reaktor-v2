@@ -207,7 +207,7 @@ class App extends React.Component<Props, State> {
     } else {
       return (
         <div className="spinner-div">
-          <Spinner animation="border" role="status" variant="primary" className="product-spinner">
+          <Spinner animation="border" role="status" variant="dark" className="product-spinner">
             <span className="sr-only">Loading...</span>
           </Spinner>
         </div>
