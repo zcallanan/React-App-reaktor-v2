@@ -10,7 +10,7 @@ class ProductCard extends React.Component<Props> {
   getAvailability(string: string): JSX.Element | HTMLElement {
     if (string === "") {
       return (
-        <Spinner animation="border" role="status" variant="primary">
+        <Spinner animation="border" role="status" variant="dark">
           <span className="sr-only">Loading...</span>
         </Spinner>
       )
