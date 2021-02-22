@@ -79,7 +79,6 @@ const PrintJSON = ({ slug }: Props) => {
     } else {
       url = process.env.REACT_APP_PROXY_URL!;
     }
-    let productResponse: ProductsType = [];
 
     const fetchProducts = async (url: string, opts: RequestInit): Promise<ProductsType | undefined> => {
       let data: ProductsAPIType;
