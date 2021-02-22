@@ -4,18 +4,18 @@ declare namespace JSX {
   }
 }
 
-type paginationType = {
+type PaginationType = {
   offset: number,
   numberPerPage: number,
   pageCount: number,
-  currentData: productsType
+  currentData: ProductsType
 }
 
-type pageClickType = {
+type PageClickType = {
   selected: number
 }
 
-type productType = {
+type ProductType = {
   color: string,
   id: string,
   manufacturer: string,
@@ -25,13 +25,13 @@ type productType = {
   availability: string
 }
 
-type productsType = Array<productType>;
+type ProductsType = Array<ProductType>;
 
-type productsAPIType = {
-  rows: Array<productType>;
+type ProductsAPIType = {
+  [key: string]: Array<ProductType>;
 }
 
-type productStatusType = {
+type ProductStatusType = {
   pendingProduct: boolean,
   successProduct: boolean
 }

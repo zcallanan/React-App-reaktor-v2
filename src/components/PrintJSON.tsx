@@ -1,12 +1,12 @@
 import React from 'react';
 
 interface Props {
-    slug: string
-  }
+  slug: string
+}
 
-  interface State {
-    products: productsType,
-  }
+interface State {
+  products: ProductsType
+}
 
 class PrettyPrintJson extends React.Component<Props, State> {
   constructor(props: any) {
@@ -15,9 +15,10 @@ class PrettyPrintJson extends React.Component<Props, State> {
       products: []
     }
   }
+
   componentDidMount() {
     // Populate products and manufacturers state & sessionStorage
-    const product: string = this.props.slug // Product name from router slug
+    const product: string = this.props.slug; // Product name from router slug
     this.getProductList(product);
     this.setupNavClick();
     this.selectedProduct();
@@ -45,7 +46,6 @@ class PrettyPrintJson extends React.Component<Props, State> {
           facemasksLink!.classList.remove('active');
         }
       }
-
 
       e.target.classList.add("active");
     }
@@ -92,41 +92,39 @@ class PrettyPrintJson extends React.Component<Props, State> {
         // Testing requires a string
         url = 'http://localhost:3010/';
       } else {
-        url = process.env.REACT_APP_PROXY_URL!
+        url = process.env.REACT_APP_PROXY_URL!;
       }
 
-    const fetchProducts = async (url: string, opts: RequestInit): Promise<productsType | undefined> => {
-      let data: productsAPIType;
+    const fetchProducts = async (url: string, opts: RequestInit): Promise<ProductsType | undefined> => {
+      let data: ProductsAPIType;
       try {
-        const response = await fetch(url, opts)
-        data = await response.json()
+        const response = await fetch(url, opts);
+        data = await response.json();
 
-        if (await Array.isArray(data.rows) && data.rows.length) {
+        if (await Array.isArray(data[product]) && data[product].length) {
           // Save data to local state to render
-          let products: productsType = [];
-          data.rows.forEach(item => {
+          let products: ProductsType = [];
+          data[product].forEach(item => {
             // Build the products list
             products.push(item)
           })
           this.setState({ products });
         } else {
-          // TODO: Data is empty, handle it
           fetchProducts(url, opts);
         }
       } catch(err) {
-         // TODO: Handle text response
-         return err
+         return err;
       }
     }
 
-    const products: productsType = { ...this.state.products }
+    const products: ProductsType = { ...this.state.products }
     if (!products.length) {
       fetchProducts(url, opts);
     }
   }
 
   render() {
-    const products: productsType = { ...this.state.products };
+    const products: ProductsType = { ...this.state.products };
     return (
       <div className="json-div">
         <pre>

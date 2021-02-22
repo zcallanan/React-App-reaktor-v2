@@ -1,8 +1,8 @@
 import React from 'react';
-import ProductCard from './ProductCard'
+import ProductCard from './ProductCard';
 
 interface Props {
-  products: productsType
+  products: ProductsType
 }
 
 class ProductList extends React.Component<Props> {
