@@ -54,7 +54,7 @@ const selectedProduct = (slug): void => {
   }
 }
 
-const PrettyPrintJson = ({ slug }: Props) => {
+const PrintJSON = ({ slug }: Props) => {
   const [products, setProducts] = useState<ProductsType>([]);
 
   useEffect(() => {
@@ -88,17 +88,9 @@ const PrettyPrintJson = ({ slug }: Props) => {
         data = await response.json();
 
         if (await Array.isArray(data[slug]) && data[slug].length) {
-          // Save data to local state to render
-
-          data[slug].forEach(item => {
-            // Build the products list
-            productResponse.push(item)
-          })
-          // this.setState({ products });
-          setProducts(productResponse);
-          const value = await productResponse
-          return await value;
+          setProducts(data[slug]);
         } else {
+          // If we don't get data back, try again
           fetchProducts(url, opts);
         }
       } catch(err) {
@@ -120,4 +112,4 @@ const PrettyPrintJson = ({ slug }: Props) => {
   );
 }
 
-export default PrettyPrintJson;
+export default PrintJSON;
