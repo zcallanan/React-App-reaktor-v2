@@ -213,9 +213,7 @@ class App extends React.Component<Props, State> {
         </div>
       )
     }
-
   }
-
 }
 
 export default App;
