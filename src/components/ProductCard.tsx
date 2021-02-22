@@ -3,7 +3,7 @@ import Spinner from 'react-bootstrap/Spinner';
 import capitalizeFirstLetter from '../helpers/capitalizeFirstLetter';
 
 interface Props {
-  cardData: productType
+  cardData: ProductType
 }
 
 class ProductCard extends React.Component<Props> {
@@ -19,7 +19,7 @@ class ProductCard extends React.Component<Props> {
   }
 
   render() {
-    const cardData: productType = this.props.cardData;
+    const cardData: ProductType = this.props.cardData;
 
     return (
       <div className="product-card">

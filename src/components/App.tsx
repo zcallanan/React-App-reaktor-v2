@@ -9,9 +9,9 @@ interface Props {
 
 interface State {
   controller: AbortController,
-  productStatus: productStatusType,
-  products: productsType,
-  pagination: paginationType,
+  productStatus: ProductStatusType,
+  products: ProductsType,
+  pagination: PaginationType,
 }
 
 class App extends React.Component<Props, State> {
@@ -34,28 +34,28 @@ class App extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const productStatus: productStatusType = { ...this.state.productStatus };
+    const productStatus: ProductStatusType = { ...this.state.productStatus };
 
     // Populate products and manufacturers state & sessionStorage
     if (!productStatus.pendingProduct) {
-      const product: string = this.props.slug // Product name from router slug
+      const product: string = this.props.slug; // Product name from router slug
       this.getProductList(product);
     }
-    this.selectedProduct()
-    this.setupNavClick()
+    this.selectedProduct();
+    this.setupNavClick();
   }
 
   componentWillUnmount() {
     const controller = this.state.controller;
-    controller.abort()
+    controller.abort();
   }
 
-  protected handlePageClick = (data: pageClickType): void => {
-    const pagination: paginationType = { ...this.state.pagination };
-    const products: productsType = [ ...this.state.products ];
+  protected handlePageClick = (data: PageClickType): void => {
+    const pagination: PaginationType = { ...this.state.pagination };
+    const products: ProductsType = [ ...this.state.products ];
     let selected: number = data.selected; // (0, 1, 2, 3...)
     pagination.offset = Math.ceil(selected * pagination.numberPerPage);
-    pagination.currentData = products.slice(pagination.offset, pagination.offset + pagination.numberPerPage)
+    pagination.currentData = products.slice(pagination.offset, pagination.offset + pagination.numberPerPage);
     this.setState({ pagination });
   };
 
@@ -63,13 +63,13 @@ class App extends React.Component<Props, State> {
     const controller = this.state.controller;
     const signal = controller.signal;
     let url: string;
-    const webToken: string = process.env.REACT_APP_WEB_TOKEN!
+    const webToken: string = process.env.REACT_APP_WEB_TOKEN!;
 
     if (process.env.NODE_ENV === 'test') {
       // Testing requires a string
       url = 'http://localhost:3010/';
     } else {
-      url = process.env.REACT_APP_PROXY_URL!
+      url = process.env.REACT_APP_PROXY_URL!;
     }
 
     const headers: HeadersInit = {
@@ -83,30 +83,29 @@ class App extends React.Component<Props, State> {
       signal
     }
 
-    const fetchProducts = async (url: string, opts: RequestInit): Promise<productsType | undefined> => {
-      let data: productsAPIType;
+    const fetchProducts = async (url: string, opts: RequestInit): Promise<ProductsType | undefined> => {
+      let data: ProductsAPIType;
       try {
-        const response = await fetch(url, opts)
-        data = await response.json()
+        const response = await fetch(url, opts);
+        data = await response.json();
 
-        if (await Array.isArray(data.rows) && data.rows.length) {
-          const productStatus: productStatusType = { ...this.state.productStatus };
+        if (await Array.isArray(data[product]) && data[product].length) {
+          const productStatus: ProductStatusType = { ...this.state.productStatus };
           productStatus.pendingProduct = false;
           productStatus.successProduct = true;
           this.setState({ productStatus });
-          let products: productsType = [];
-          data.rows.forEach(item => {
+          let products: ProductsType = [];
+          data[product].forEach(item => {
             // Build the products list
             products.push(item)
           })
           // Save products 0 to 19 to initial currentData
-          const pagination: paginationType = { ...this.state.pagination } // empty []
-          pagination.currentData = products.slice(0, pagination.offset + pagination.numberPerPage + 1)
+          const pagination: PaginationType = { ...this.state.pagination }; // empty []
+          pagination.currentData = products.slice(0, pagination.offset + pagination.numberPerPage + 1);
           // Save the products list
-          this.setState({ products, pagination })
+          this.setState({ products, pagination });
         } else {
-          // TODO: Data is empty, handle it
-          const productStatus: productStatusType = { ...this.state.productStatus };
+          const productStatus: ProductStatusType = { ...this.state.productStatus };
           if (!productStatus.successProduct) {
             productStatus.pendingProduct = true;
             this.setState({ productStatus });
@@ -115,12 +114,12 @@ class App extends React.Component<Props, State> {
 
         }
       } catch(err) {
-         console.log(err)
-         return err
+         console.log(err);
+         return err;
       }
     }
 
-    const products: productsType = { ...this.state.products }
+    const products: ProductsType = { ...this.state.products };
     if (!products.length) {
       fetchProducts(url, opts);
     }
@@ -175,7 +174,7 @@ class App extends React.Component<Props, State> {
   }
 
   render() {
-    const productStatus: productStatusType = { ...this.state.productStatus }
+    const productStatus: ProductStatusType = { ...this.state.productStatus };
 
     if (!productStatus.pendingProduct && productStatus.successProduct) {
       // Render product list data
