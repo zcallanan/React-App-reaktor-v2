@@ -55,7 +55,8 @@ const App = ({ slug }: Props) => {
     numberPerPage: 30,
     pageCount: -1,
     currentData: [],
-    currentPage: Number.parseInt(history?.location.search.match(/\d/)![0], 10)
+    // currentPage: Number.parseInt(history?.location.search.match(/\d+/)![0], 10)
+    currentPage: -1
   }
 
   // Manage state
@@ -78,13 +79,18 @@ const App = ({ slug }: Props) => {
     let selected: number = data.selected; // (0, 1, 2, 3...)
     let currentPage: number;
 
-    if (typeof(selected) === 'string') {
+    if (typeof(selected) === 'string' && Number(selected)) {
       // Should not occur, but selected can be a string from URL or nav links
-      selected = Number.parseInt(selected, 10);
+      selected = Number(selected);
       currentPage = selected;
     } else {
       // Selected starts at 0, pagination starts at 1, so increment
       currentPage = selected + 1;
+    }
+
+    if (currentPage === 0) {
+      currentPage = 1;
+      selected = 0
     }
 
     let offset = Math.ceil(selected * paginationState.numberPerPage);
@@ -105,6 +111,21 @@ const App = ({ slug }: Props) => {
     // Update the URL query search param
     changeQuerySearch(currentPage);
   };
+
+  const validateSearchQuery = (pageValue: number | string): number => {
+    if (typeof(pageValue) === 'string' && Number(pageValue)) {
+      // Value is a string, but can be converted to a number
+      // Validate it again in case the string-converted number is out of range
+      validateSearchQuery(Number(pageValue) - 1);
+    } else if (typeof(pageValue) !== 'number' || pageValue < 1) {
+      // NaN or less than 1
+      return 1;
+    } else if (typeof(pageValue) === 'number' && pageValue > paginationState.pageCount) {
+      // pageValue number out of range
+      return paginationState.pageCount;
+    }
+    return Number(pageValue);
+  }
 
   useEffect(() => {
     // If component unmounts, then abort unresolved fetches
@@ -153,7 +174,8 @@ const App = ({ slug }: Props) => {
           setProducts(data[slug]);
 
           // Setup initial currentData
-          let currentPage = Number.parseInt(history?.location.search.match(/\d/)![0], 10);
+          // let currentPage = Number.parseInt(history?.location.search.match(/\d+/)![0], 10);
+          let currentPage: number = validateSearchQuery(history?.location.search.match(/\d+/)![0]);
           let offset = Math.ceil((currentPage - 1) * paginationState.numberPerPage);
           let currentData = data[slug].slice(offset, offset + paginationState.numberPerPage);
           let pageCount = data[slug].length / paginationState.numberPerPage
@@ -184,11 +206,20 @@ const App = ({ slug }: Props) => {
   }, [slug, paginationState.numberPerPage, products.length, statusState.successProduct, controller.signal]);
 
   if (!statusState.pendingProduct && statusState.successProduct) {
-    let pageValue: number | string = history?.location.search.match(/\d/)![0];
-    if (typeof(pageValue) === 'string') {
+    let val: Array<string> | null = history?.location.search.match(/\d+/)!;
+    let pageValue: string | number = (val === null) ? 1 : val[0];
+
+    if (typeof(pageValue) === 'string' && Number(pageValue)) {
       // Search pageValue is a string if it comes from URL or nav links
       // In this case, subtract 1 so that it does not increment in handlePageClick
-      pageValue = Number.parseInt(pageValue, 10) - 1;
+      pageValue = Number(pageValue) - 1;
+    } else if (typeof(pageValue) !== 'number' || pageValue < 1) {
+      pageValue = 1;
+    } else if (typeof(pageValue) === 'number' && pageValue > paginationState.pageCount) {
+      pageValue = paginationState.pageCount;
+    }
+    if (pageValue = 0) {
+      pageValue = 1
     }
 
     // Render product list data
