@@ -7,18 +7,17 @@ import NotFound from './NotFound';
 import PrintJSON from './PrintJSON';
 
 const Router = () => (
-
   <BrowserRouter>
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <ul className="navbar-nav">
         <li className="nav-item beanies-nav">
-          <Link className="nav-link beanies-link" to="/v2/beanies">Beanies</Link>
+          <Link className="nav-link beanies-link" to={"/v2/beanies?page=1"}>Beanies</Link>
         </li>
         <li className="nav-item facemasks-nav">
-          <Link className="nav-link facemasks-link" to="/v2/facemasks">Facemasks</Link>
+          <Link className="nav-link facemasks-link" to="/v2/facemasks?page=1">Facemasks</Link>
         </li>
         <li className="nav-item gloves-nav">
-          <Link className="nav-link gloves-link" to="/v2/gloves">Gloves</Link>
+          <Link className="nav-link gloves-link" to="/v2/gloves?page=1">Gloves</Link>
         </li>
       </ul>
     </nav>
