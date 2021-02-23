@@ -23,7 +23,7 @@ const Router = () => (
     </nav>
     <Switch>
       {/* If slug is one of three products, send slug to App as prop */}
-      <Route path={`/v2/beanies/`}>
+      <Route path="/v2/beanies/">
          <Beanies slug="beanies" />
       </Route>
       <Route path="/v2/facemasks">
