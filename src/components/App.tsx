@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState, useReducer } from 'react';
+import { setupNavClick, selectedProduct } from '../helpers/nav-links';
 import ProductList from './ProductList';
 import Spinner from 'react-bootstrap/Spinner';
 import ReactPaginate from 'react-paginate';
@@ -7,60 +8,87 @@ interface Props {
   slug: string
 }
 
-interface State {
-  controller: AbortController,
-  productStatus: ProductStatusType,
-  products: ProductsType,
-  pagination: PaginationType,
-}
+const App = ({ slug }: Props) => {
 
-class App extends React.Component<Props, State> {
-  constructor(props: any) {
-    super(props);
-    this.state = {
-      controller: new AbortController(),
-      productStatus: {
-        pendingProduct: false,
-        successProduct: false
-      },
-      products: [],
-      pagination: {
-        offset: -1, // calculated in this.handlePageClick
-        numberPerPage: 30,
-        pageCount: -1, // calculated in this.handlePageClick
-        currentData: [] // init on componentDidMount, then products slice via this.handlePageClick
-      }
+  // Reducers
+  const statusReducer = (state, action) => {
+    switch (action.type) {
+      case 'PENDINGTRUE':
+        return {
+          ...state,
+          pendingProduct: true
+        };
+      case 'SUCCESSTRUE':
+        return {
+          pendingProduct: false,
+          successProduct: true
+        };
+      default:
+        throw new Error();
+    }
+  }
+  const paginationReducer = (state, action) => {
+    switch (action.type) {
+      case 'PAGINATION':
+        return {
+          ...state,
+          offset: action.payload.offset,
+          currentData: action.payload.currentData,
+          pageCount: action.payload.pageCount
+        };
+      default:
+        throw new Error();
     }
   }
 
-  componentDidMount() {
-    const productStatus: ProductStatusType = { ...this.state.productStatus };
-
-    // Populate products and manufacturers state & sessionStorage
-    if (!productStatus.pendingProduct) {
-      const product: string = this.props.slug; // Product name from router slug
-      this.getProductList(product);
-    }
-    this.selectedProduct();
-    this.setupNavClick();
+  // Initial values
+  const statusInitial = {
+    pendingProduct: false,
+    successProduct: false
   }
 
-  componentWillUnmount() {
-    const controller = this.state.controller;
-    controller.abort();
+  const paginationInitial = {
+    offset: -1,
+    numberPerPage: 30,
+    pageCount: -1,
+    currentData: []
   }
 
-  protected handlePageClick = (data: PageClickType): void => {
-    const pagination: PaginationType = { ...this.state.pagination };
-    const products: ProductsType = [ ...this.state.products ];
+  // Manage state
+  const [controller, setController] = useState<AbortController>(new AbortController());
+  const [statusState, statusDispatch] = useReducer(statusReducer, statusInitial);
+  const [products, setProducts] = useState<ProductsType>([]);
+  const [paginationState, paginationDispatch] = useReducer(paginationReducer, paginationInitial);
+
+  // Manage pagination
+  const handlePageClick = (data: PageClickType): void => {
     let selected: number = data.selected; // (0, 1, 2, 3...)
-    pagination.offset = Math.ceil(selected * pagination.numberPerPage);
-    pagination.currentData = products.slice(pagination.offset, pagination.offset + pagination.numberPerPage);
-    this.setState({ pagination });
+    let offset = Math.ceil(selected * paginationState.numberPerPage);
+    let currentData = products.slice(offset, offset + paginationState.numberPerPage);
+    let pageCount = products.length / paginationState.numberPerPage
+    paginationDispatch({
+      type: 'PAGINATION',
+      payload: {
+        offset: offset,
+        currentData: currentData,
+        pageCount: pageCount
+      }
+    })
   };
 
-  protected getProductList(product: string): void {
-    const controller = this.state.controller;
+  useEffect(() => {
+    // If component unmounts, then abort unresolved fetches
+    return (): void => {
+      controller.abort();
+    }
+  }, [controller]);
+
+  useEffect(() => {
+    // Setup nav links
+    setupNavClick();
+    selectedProduct(slug);
+
+    // API request values
     const signal = controller.signal;
     let url: string;
     const webToken: string = process.env.REACT_APP_WEB_TOKEN!;
@@ -75,7 +103,7 @@ class App extends React.Component<Props, State> {
     const headers: HeadersInit = {
       'X-WEB-TOKEN': webToken,
       'X-VERSION': 'v2',
-      'X-PRODUCT': product
+      'X-PRODUCT': slug
     }
 
     const opts: RequestInit = {
@@ -83,135 +111,81 @@ class App extends React.Component<Props, State> {
       signal
     }
 
+    // API GET fetch
     const fetchProducts = async (url: string, opts: RequestInit): Promise<ProductsType | undefined> => {
       let data: ProductsAPIType;
       try {
         const response = await fetch(url, opts);
         data = await response.json();
 
-        if (await Array.isArray(data[product]) && data[product].length) {
-          const productStatus: ProductStatusType = { ...this.state.productStatus };
-          productStatus.pendingProduct = false;
-          productStatus.successProduct = true;
-          this.setState({ productStatus });
-          let products: ProductsType = [];
-          data[product].forEach(item => {
-            // Build the products list
-            products.push(item)
-          })
+        if (await Array.isArray(data[slug]) && data[slug].length) {
+          statusDispatch({type: 'SUCCESSTRUE'})
+          setProducts(data[slug]);
+
           // Save products 0 to 19 to initial currentData
-          const pagination: PaginationType = { ...this.state.pagination }; // empty []
-          pagination.currentData = products.slice(0, pagination.offset + pagination.numberPerPage + 1);
-          // Save the products list
-          this.setState({ products, pagination });
+          let offset = 0;
+          let currentData = data[slug].slice(0, offset + paginationState.numberPerPage + 1);
+          let pageCount = data[slug].length / paginationState.numberPerPage
+          paginationDispatch({
+            type: 'PAGINATION',
+            payload: {
+              currentData: currentData,
+              offset: offset,
+              pageCount: pageCount
+            }
+          })
         } else {
-          const productStatus: ProductStatusType = { ...this.state.productStatus };
-          if (!productStatus.successProduct) {
-            productStatus.pendingProduct = true;
-            this.setState({ productStatus });
+          if (!statusState.successProduct) {
+            statusDispatch({type: 'PENDINGTRUE'})
             fetchProducts(url, opts);
           }
-
         }
       } catch(err) {
          console.log(err);
          return err;
       }
     }
-
-    const products: ProductsType = { ...this.state.products };
+    // Initital fetch products call
     if (!products.length) {
       fetchProducts(url, opts);
     }
-  }
+  }, [slug, paginationState.numberPerPage, products.length, statusState.successProduct, controller.signal]);
 
-  protected setupNavClick() {
-    const beanies: Element | null = document.querySelector('.beanies-nav');
-    const facemasks: Element | null = document.querySelector('.facemasks-nav');
-    const gloves: Element | null = document.querySelector('.gloves-nav');
-    const beaniesLink: Element | null = document.querySelector('.beanies-link');
-    const facemasksLink: Element | null = document.querySelector('.facemasks-link');
-    const glovesLink: Element | null = document.querySelector('.gloves-link');
-
-    const handleNavClick = e => {
-      // Clicked product should be only active product in nav
-      if (beaniesLink !== null && beaniesLink === e.target) {
-        glovesLink!.classList.remove('active');
-        facemasksLink!.classList.remove('active');
-      } else if (facemasksLink !== null && facemasksLink === e.target) {
-        beaniesLink!.classList.remove('active');
-        glovesLink!.classList.remove('active');
-      } else if (glovesLink !== null && glovesLink === e.target) {
-        beaniesLink!.classList.remove('active');
-        facemasksLink!.classList.remove('active');
-      }
-
-      e.target.classList.add("active");
-    }
-    beanies?.addEventListener("click", handleNavClick);
-    facemasks?.addEventListener("click", handleNavClick);
-    gloves?.addEventListener("click", handleNavClick);
-  }
-
-  protected selectedProduct() {
-    // Select the nav product in view at load
-    if (this.props.slug === 'beanies') {
-      const beaniesLink: Element | null = document.querySelector('.beanies-link');
-      if (beaniesLink !== null) {
-        beaniesLink!.classList.add('active');
-      }
-    } else if (this.props.slug === 'facemasks') {
-      const facemasksLink: Element | null = document.querySelector('.facemasks-link');
-      if (facemasksLink !== null) {
-        facemasksLink!.classList.add('active');
-      }
-    } else if (this.props.slug === 'gloves') {
-      const glovesLink: Element | null = document.querySelector('.gloves-link');
-      if (glovesLink !== null) {
-        glovesLink!.classList.add('active');
-      }
-    }
-  }
-
-  render() {
-    const productStatus: ProductStatusType = { ...this.state.productStatus };
-
-    if (!productStatus.pendingProduct && productStatus.successProduct) {
-      // Render product list data
-      return (
-        <div className='product-list'>
-          <ProductList products={this.state.pagination.currentData}/>
-          <ReactPaginate
-            previousLabel={'previous'}
-            nextLabel={'next'}
-            breakLabel={'...'}
-            pageCount={this.state.products.length / this.state.pagination.numberPerPage}
-            marginPagesDisplayed={2}
-            pageRangeDisplayed={5}
-            onPageChange={this.handlePageClick}
-            subContainerClassName={'pages pagination'}
-            activeClassName={'active'}
-            breakClassName={'page-item'}
-            breakLinkClassName={'page-link'}
-            containerClassName={'pagination'}
-            pageClassName={'page-item'}
-            pageLinkClassName={'page-link'}
-            previousClassName={'page-item'}
-            previousLinkClassName={'page-link'}
-            nextClassName={'page-item'}
-            nextLinkClassName={'page-link'}
-          />
-        </div>
-      )
-    } else {
-      return (
-        <div className="spinner-div">
-          <Spinner animation="border" role="status" variant="dark" className="product-spinner">
-            <span className="sr-only">Loading...</span>
-          </Spinner>
-        </div>
-      )
-    }
+  if (!statusState.pendingProduct && statusState.successProduct) {
+    // Render product list data
+    return (
+      <div className='product-list'>
+        <ProductList products={paginationState.currentData}/>
+        <ReactPaginate
+          previousLabel={'previous'}
+          nextLabel={'next'}
+          breakLabel={'...'}
+          pageCount={products.length / paginationState.numberPerPage}
+          marginPagesDisplayed={2}
+          pageRangeDisplayed={5}
+          onPageChange={handlePageClick}
+          subContainerClassName={'pages pagination'}
+          activeClassName={'active'}
+          breakClassName={'page-item'}
+          breakLinkClassName={'page-link'}
+          containerClassName={'pagination'}
+          pageClassName={'page-item'}
+          pageLinkClassName={'page-link'}
+          previousClassName={'page-item'}
+          previousLinkClassName={'page-link'}
+          nextClassName={'page-item'}
+          nextLinkClassName={'page-link'}
+        />
+      </div>
+    )
+  } else {
+    return (
+      <div className="spinner-div">
+        <Spinner animation="border" role="status" variant="dark" className="product-spinner">
+          <span className="sr-only">Loading...</span>
+        </Spinner>
+      </div>
+    )
   }
 }
 
