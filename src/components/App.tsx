@@ -55,7 +55,6 @@ const App = ({ slug }: Props) => {
     numberPerPage: 30,
     pageCount: -1,
     currentData: [],
-    // currentPage: Number.parseInt(history?.location.search.match(/\d+/)![0], 10)
     currentPage: -1
   }
 
@@ -174,7 +173,6 @@ const App = ({ slug }: Props) => {
           setProducts(data[slug]);
 
           // Setup initial currentData
-          // let currentPage = Number.parseInt(history?.location.search.match(/\d+/)![0], 10);
           let currentPage: number = validateSearchQuery(history?.location.search.match(/\d+/)![0]);
           let offset = Math.ceil((currentPage - 1) * paginationState.numberPerPage);
           let currentData = data[slug].slice(offset, offset + paginationState.numberPerPage);
