@@ -3,12 +3,14 @@ import { setupNavClick, selectedProduct } from '../helpers/nav-links';
 import ProductList from './ProductList';
 import Spinner from 'react-bootstrap/Spinner';
 import ReactPaginate from 'react-paginate';
+import { useHistory } from "react-router-dom";
 
 interface Props {
   slug: string
 }
 
 const App = ({ slug }: Props) => {
+  const history = useHistory();
 
   // Reducers
   const statusReducer = (state, action) => {
@@ -34,7 +36,8 @@ const App = ({ slug }: Props) => {
           ...state,
           offset: action.payload.offset,
           currentData: action.payload.currentData,
-          pageCount: action.payload.pageCount
+          pageCount: action.payload.pageCount,
+          currentPage: action.payload.currentPage
         };
       default:
         throw new Error();
@@ -51,7 +54,8 @@ const App = ({ slug }: Props) => {
     offset: -1,
     numberPerPage: 30,
     pageCount: -1,
-    currentData: []
+    currentData: [],
+    currentPage: Number.parseInt(history?.location.search.match(/\d/)![0], 10)
   }
 
   // Manage state
@@ -60,20 +64,46 @@ const App = ({ slug }: Props) => {
   const [products, setProducts] = useState<ProductsType>([]);
   const [paginationState, paginationDispatch] = useReducer(paginationReducer, paginationInitial);
 
+  // Fn to replace URL search query string
+  const changeQuerySearch = (currentPage: number): void => {
+    history.replace({
+      pathname: `/v2/${slug}`,
+      search: `?page=${currentPage}`
+    });
+
+  };
+
   // Manage pagination
   const handlePageClick = (data: PageClickType): void => {
     let selected: number = data.selected; // (0, 1, 2, 3...)
+    let currentPage: number;
+
+    if (typeof(selected) === 'string') {
+      // Should not occur, but selected can be a string from URL or nav links
+      selected = Number.parseInt(selected, 10);
+      currentPage = selected;
+    } else {
+      // Selected starts at 0, pagination starts at 1, so increment
+      currentPage = selected + 1;
+    }
+
     let offset = Math.ceil(selected * paginationState.numberPerPage);
     let currentData = products.slice(offset, offset + paginationState.numberPerPage);
     let pageCount = products.length / paginationState.numberPerPage
+
+    // Save pagination values
     paginationDispatch({
       type: 'PAGINATION',
       payload: {
         offset: offset,
         currentData: currentData,
-        pageCount: pageCount
+        pageCount: pageCount,
+        currentPage: currentPage
       }
     })
+
+    // Update the URL query search param
+    changeQuerySearch(currentPage);
   };
 
   useEffect(() => {
@@ -122,16 +152,18 @@ const App = ({ slug }: Props) => {
           statusDispatch({type: 'SUCCESSTRUE'})
           setProducts(data[slug]);
 
-          // Save products 0 to 19 to initial currentData
-          let offset = 0;
-          let currentData = data[slug].slice(0, offset + paginationState.numberPerPage + 1);
+          // Setup initial currentData
+          let currentPage = Number.parseInt(history?.location.search.match(/\d/)![0], 10);
+          let offset = Math.ceil((currentPage - 1) * paginationState.numberPerPage);
+          let currentData = data[slug].slice(offset, offset + paginationState.numberPerPage);
           let pageCount = data[slug].length / paginationState.numberPerPage
           paginationDispatch({
             type: 'PAGINATION',
             payload: {
               currentData: currentData,
               offset: offset,
-              pageCount: pageCount
+              pageCount: pageCount,
+              currentPage: currentPage
             }
           })
         } else {
@@ -152,11 +184,19 @@ const App = ({ slug }: Props) => {
   }, [slug, paginationState.numberPerPage, products.length, statusState.successProduct, controller.signal]);
 
   if (!statusState.pendingProduct && statusState.successProduct) {
+    let pageValue: number | string = history?.location.search.match(/\d/)![0];
+    if (typeof(pageValue) === 'string') {
+      // Search pageValue is a string if it comes from URL or nav links
+      // In this case, subtract 1 so that it does not increment in handlePageClick
+      pageValue = Number.parseInt(pageValue, 10) - 1;
+    }
+
     // Render product list data
     return (
       <div className='product-list'>
         <ProductList products={paginationState.currentData}/>
         <ReactPaginate
+          initialPage={pageValue}
           previousLabel={'previous'}
           nextLabel={'next'}
           breakLabel={'...'}
