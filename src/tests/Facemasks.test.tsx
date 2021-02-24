@@ -23,7 +23,7 @@ describe('<Facemasks> Component Tests', () => {
   test('Facemasks Product List component displayed', async () => {
     let component;
     await act( async () => {
-      component = mount(<MemoryRouter initialEntries={["/v2/facemasks"]} ><Facemasks slug="facemasks" /></MemoryRouter>)
+      component = mount(<MemoryRouter initialEntries={["/facemasks"]} ><Facemasks slug="facemasks" /></MemoryRouter>)
     });
     component.update()
     expect(component.find('ProductList')).toHaveLength(1);
@@ -33,7 +33,7 @@ describe('<Facemasks> Component Tests', () => {
   test('Facemasks Product Card components and data are displayed', async () => {
     let component;
     await act( async () => {
-      component = mount(<MemoryRouter initialEntries={["/v2/facemasks"]} ><Facemasks slug="facemasks" /></MemoryRouter>)
+      component = mount(<MemoryRouter initialEntries={["/facemasks"]} ><Facemasks slug="facemasks" /></MemoryRouter>)
     });
     component.update()
     expect(component.find('ProductCard')).toHaveLength(3);
@@ -58,7 +58,7 @@ describe('<Facemasks> Component Tests', () => {
   test('Facemasks PrintJSON component', async () => {
     let component;
     await act( async () => {
-      component = mount(<MemoryRouter initialEntries={["/v2/api/facemasks"]} ><PrintJSON slug="facemasks" /></MemoryRouter>)
+      component = mount(<MemoryRouter initialEntries={["/api/facemasks"]} ><PrintJSON slug="facemasks" /></MemoryRouter>)
     });
     component.update()
     expect(component.find(PrintJSON)).toHaveLength(1);

@@ -24,7 +24,7 @@ describe('<Beanies> Component Tests', () => {
   test('Beanies Product List component displayed', async () => {
     let component;
     await act( async () => {
-      component = mount(<MemoryRouter initialEntries={["/v2/beanies"]} ><Beanies slug="beanies" /></MemoryRouter>)
+      component = mount(<MemoryRouter initialEntries={["/beanies"]} ><Beanies slug="beanies" /></MemoryRouter>)
     });
     component.update()
     expect(component.find('ProductList')).toHaveLength(1);
@@ -34,7 +34,7 @@ describe('<Beanies> Component Tests', () => {
   test('Beanies Product Card components and data are displayed', async () => {
     let component;
     await act( async () => {
-      component = mount(<MemoryRouter initialEntries={["/v2/beanies"]} ><Beanies slug="beanies" /></MemoryRouter>)
+      component = mount(<MemoryRouter initialEntries={["/beanies"]} ><Beanies slug="beanies" /></MemoryRouter>)
     });
     component.update()
     expect(component.find('ProductCard')).toHaveLength(3);
@@ -59,7 +59,7 @@ describe('<Beanies> Component Tests', () => {
   test('Beanies PrintJSON component', async () => {
     let component;
     await act( async () => {
-      component = mount(<MemoryRouter initialEntries={["/v2/api/beanies"]} ><PrintJSON slug="beanies" /></MemoryRouter>)
+      component = mount(<MemoryRouter initialEntries={["/api/beanies"]} ><PrintJSON slug="beanies" /></MemoryRouter>)
     });
     component.update()
     expect(component.find(PrintJSON)).toHaveLength(1);

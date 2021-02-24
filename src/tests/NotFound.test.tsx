@@ -11,13 +11,13 @@ Enzyme.configure({ adapter: new Adapter() });
 
 describe('<NotFound /> Component Tests', () => {
   test('Router renders one NotFound component', () => {
-    const component = mount(<MemoryRouter initialEntries={["/v2/tophats"]} ><Router  /></MemoryRouter>)
+    const component = mount(<MemoryRouter initialEntries={["/tophats"]} ><Router  /></MemoryRouter>)
     expect(component.find(NotFound)).toHaveLength(1);
     component.unmount();
   })
 
   test('Invalid URL displays direction text', () => {
-    const component = mount(<MemoryRouter initialEntries={["/v2/tophats"]} ><Router  /></MemoryRouter>)
+    const component = mount(<MemoryRouter initialEntries={["/tophats"]} ><Router  /></MemoryRouter>)
     expect(component.text().includes('To view product information, click on a link above!')).toBe(true);
     component.unmount();
   })
