@@ -27,8 +27,8 @@ const App = ({ slug }: Props) => {
         };
       default:
         throw new Error();
-    }
-  }
+    };
+  };
   const paginationReducer = (state, action) => {
     switch (action.type) {
       case 'PAGINATION':
@@ -41,14 +41,14 @@ const App = ({ slug }: Props) => {
         };
       default:
         throw new Error();
-    }
-  }
+    };
+  };
 
   // Initial values
   const statusInitial = {
     pendingProduct: false,
     successProduct: false
-  }
+  };
 
   const paginationInitial = {
     offset: -1,
@@ -56,7 +56,7 @@ const App = ({ slug }: Props) => {
     pageCount: -1,
     currentData: [],
     currentPage: -1
-  }
+  };
 
   // Manage state
   const [controller, setController] = useState<AbortController>(new AbortController());
@@ -78,19 +78,8 @@ const App = ({ slug }: Props) => {
     let selected: number = data.selected; // (0, 1, 2, 3...)
     let currentPage: number;
 
-    if (typeof(selected) === 'string' && Number(selected)) {
-      // Should not occur, but selected can be a string from URL or nav links
-      selected = Number(selected);
-      currentPage = selected;
-    } else {
-      // Selected starts at 0, pagination starts at 1, so increment
-      currentPage = selected + 1;
-    }
-
-    if (currentPage === 0) {
-      currentPage = 1;
-      selected = 0
-    }
+    // Selected starts at 0, pagination starts at 1, so increment
+    currentPage = selected + 1;
 
     let offset = Math.ceil(selected * paginationState.numberPerPage);
     let currentData = products.slice(offset, offset + paginationState.numberPerPage);
@@ -105,7 +94,7 @@ const App = ({ slug }: Props) => {
         pageCount: pageCount,
         currentPage: currentPage
       }
-    })
+    });
 
     // Update the URL query search param
     changeQuerySearch(currentPage);
@@ -122,15 +111,15 @@ const App = ({ slug }: Props) => {
     } else if (typeof(pageValue) === 'number' && pageValue > paginationState.pageCount) {
       // pageValue number out of range
       return paginationState.pageCount;
-    }
+    };
     return Number(pageValue);
-  }
+  };
 
   useEffect(() => {
     // If component unmounts, then abort unresolved fetches
     return (): void => {
       controller.abort();
-    }
+    };
   }, [controller]);
 
   useEffect(() => {
@@ -148,18 +137,18 @@ const App = ({ slug }: Props) => {
       url = 'http://localhost:3010/';
     } else {
       url = process.env.REACT_APP_PROXY_URL!;
-    }
+    };
 
     const headers: HeadersInit = {
       'X-WEB-TOKEN': webToken,
       'X-VERSION': 'v2',
       'X-PRODUCT': slug
-    }
+    };
 
     const opts: RequestInit = {
       headers,
       signal
-    }
+    };
 
     // API GET fetch
     const fetchProducts = async (url: string, opts: RequestInit): Promise<ProductsType | undefined> => {
@@ -185,47 +174,43 @@ const App = ({ slug }: Props) => {
               pageCount: pageCount,
               currentPage: currentPage
             }
-          })
+          });
         } else {
           if (!statusState.successProduct) {
             statusDispatch({type: 'PENDINGTRUE'})
             fetchProducts(url, opts);
-          }
-        }
+          };
+        };
       } catch(err) {
          console.log(err);
          return err;
-      }
-    }
+      };
+    };
     // Initital fetch products call
     if (!products.length) {
       fetchProducts(url, opts);
-    }
+    };
   }, [slug, paginationState.numberPerPage, products.length, statusState.successProduct, controller.signal]);
 
   if (!statusState.pendingProduct && statusState.successProduct) {
-    let val: Array<string> | null = history?.location.search.match(/\d+/)!;
-    let pageValue: string | number = (val === null) ? 1 : val[0];
+    let searchQueryArray: Array<string> | null = history?.location.search.match(/\d+/)!;
+    let searchQuery: string | number = (searchQueryArray === null) ? 's' : searchQueryArray[0];
+    let selectedValue: number;
 
-    if (typeof(pageValue) === 'string' && Number(pageValue)) {
-      // Search pageValue is a string if it comes from URL or nav links
-      // In this case, subtract 1 so that it does not increment in handlePageClick
-      pageValue = Number(pageValue) - 1;
-    } else if (typeof(pageValue) !== 'number' || pageValue < 1) {
-      pageValue = 1;
-    } else if (typeof(pageValue) === 'number' && pageValue > paginationState.pageCount) {
-      pageValue = paginationState.pageCount;
-    }
-    if (pageValue = 0) {
-      pageValue = 1
-    }
+    if (Number(searchQuery)) {
+      // If URL search query value is a number, then selectedValue is 1 less than the page number (selected starts at 0)
+      selectedValue = Number(searchQuery) - 1;
+    } else {
+      // If URL search query is not a number, then start at selected index 0
+      selectedValue = 0;
+    };
 
     // Render product list data
     return (
       <div className='product-list'>
         <ProductList products={paginationState.currentData}/>
         <ReactPaginate
-          initialPage={pageValue}
+          initialPage={selectedValue}
           previousLabel={'previous'}
           nextLabel={'next'}
           breakLabel={'...'}
@@ -246,7 +231,7 @@ const App = ({ slug }: Props) => {
           nextLinkClassName={'page-link'}
         />
       </div>
-    )
+    );
   } else {
     return (
       <div className="spinner-div">
@@ -254,8 +239,8 @@ const App = ({ slug }: Props) => {
           <span className="sr-only">Loading...</span>
         </Spinner>
       </div>
-    )
-  }
-}
+    );
+  };
+};
 
 export default App;

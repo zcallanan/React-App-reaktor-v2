@@ -11,7 +11,7 @@ const Router = () => (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <ul className="navbar-nav">
         <li className="nav-item beanies-nav">
-          <Link className="nav-link beanies-link" to={"/beanies?page=1"}>Beanies</Link>
+          <Link className="nav-link beanies-link" to="/beanies?page=1">Beanies</Link>
         </li>
         <li className="nav-item facemasks-nav">
           <Link className="nav-link facemasks-link" to="/facemasks?page=1">Facemasks</Link>

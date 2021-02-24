@@ -18,10 +18,10 @@ const setupNavClick = (): void => {
       } else if (glovesLink === e.target) {
         beaniesLink!.classList.remove('active');
         facemasksLink!.classList.remove('active');
-      }
-    }
+      };
+    };
     e.target.classList.add("active");
-  }
+  };
   beanies?.addEventListener("click", handleNavClick);
   facemasks?.addEventListener("click", handleNavClick);
   gloves?.addEventListener("click", handleNavClick);
@@ -33,18 +33,18 @@ const selectedProduct = (slug): void => {
     const beaniesLink: Element | null = document.querySelector('.beanies-link');
     if (beaniesLink !== null) {
       beaniesLink!.classList.add('active');
-    }
+    };
   } else if (slug === 'facemasks') {
     const facemasksLink: Element | null = document.querySelector('.facemasks-link');
     if (facemasksLink !== null) {
       facemasksLink!.classList.add('active');
-    }
+    };
   } else if (slug === 'gloves') {
     const glovesLink: Element | null = document.querySelector('.gloves-link');
     if (glovesLink !== null) {
       glovesLink!.classList.add('active');
-    }
-  }
-}
+    };
+  };
+};
 
 export { setupNavClick, selectedProduct };

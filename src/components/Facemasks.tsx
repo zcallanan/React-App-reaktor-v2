@@ -3,7 +3,7 @@ import App from './App';
 
 interface Props {
   slug: string
-}
+};
 
 class Facemasks extends React.Component<Props> {
   render() {
@@ -11,8 +11,8 @@ class Facemasks extends React.Component<Props> {
       <div className="container">
         <App slug={this.props.slug} />
       </div>
-    )
-  }
-}
+    );
+  };
+};
 
 export default Facemasks;
