@@ -55,7 +55,7 @@ const App = ({ slug }: Props) => {
     numberPerPage: 30,
     pageCount: -1,
     currentData: [],
-    currentPage: -1
+    currentPage: -1,
   }
 
   // Manage state
@@ -78,19 +78,8 @@ const App = ({ slug }: Props) => {
     let selected: number = data.selected; // (0, 1, 2, 3...)
     let currentPage: number;
 
-    if (typeof(selected) === 'string' && Number(selected)) {
-      // Should not occur, but selected can be a string from URL or nav links
-      selected = Number(selected);
-      currentPage = selected;
-    } else {
-      // Selected starts at 0, pagination starts at 1, so increment
-      currentPage = selected + 1;
-    }
-
-    if (currentPage === 0) {
-      currentPage = 1;
-      selected = 0
-    }
+    // Selected starts at 0, pagination starts at 1, so increment
+    currentPage = selected + 1;
 
     let offset = Math.ceil(selected * paginationState.numberPerPage);
     let currentData = products.slice(offset, offset + paginationState.numberPerPage);
@@ -204,20 +193,16 @@ const App = ({ slug }: Props) => {
   }, [slug, paginationState.numberPerPage, products.length, statusState.successProduct, controller.signal]);
 
   if (!statusState.pendingProduct && statusState.successProduct) {
-    let val: Array<string> | null = history?.location.search.match(/\d+/)!;
-    let pageValue: string | number = (val === null) ? 1 : val[0];
+    let searchQueryArray: Array<string> | null = history?.location.search.match(/\d+/)!;
+    let searchQuery: string | number = (searchQueryArray === null) ? 's' : searchQueryArray[0];
+    let selectedValue: number;
 
-    if (typeof(pageValue) === 'string' && Number(pageValue)) {
-      // Search pageValue is a string if it comes from URL or nav links
-      // In this case, subtract 1 so that it does not increment in handlePageClick
-      pageValue = Number(pageValue) - 1;
-    } else if (typeof(pageValue) !== 'number' || pageValue < 1) {
-      pageValue = 1;
-    } else if (typeof(pageValue) === 'number' && pageValue > paginationState.pageCount) {
-      pageValue = paginationState.pageCount;
-    }
-    if (pageValue = 0) {
-      pageValue = 1
+    if (Number(searchQuery)) {
+      // If URL search query value is a number, then selectedValue is 1 less than the page number (selected starts at 0)
+      selectedValue = Number(searchQuery) - 1;
+    } else {
+      // If URL search query is not a number, then start at selected index 0
+      selectedValue = 0;
     }
 
     // Render product list data
@@ -225,7 +210,7 @@ const App = ({ slug }: Props) => {
       <div className='product-list'>
         <ProductList products={paginationState.currentData}/>
         <ReactPaginate
-          initialPage={pageValue}
+          initialPage={selectedValue}
           previousLabel={'previous'}
           nextLabel={'next'}
           breakLabel={'...'}
