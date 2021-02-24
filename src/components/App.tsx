@@ -27,8 +27,8 @@ const App = ({ slug }: Props) => {
         };
       default:
         throw new Error();
-    }
-  }
+    };
+  };
   const paginationReducer = (state, action) => {
     switch (action.type) {
       case 'PAGINATION':
@@ -41,22 +41,22 @@ const App = ({ slug }: Props) => {
         };
       default:
         throw new Error();
-    }
-  }
+    };
+  };
 
   // Initial values
   const statusInitial = {
     pendingProduct: false,
     successProduct: false
-  }
+  };
 
   const paginationInitial = {
     offset: -1,
     numberPerPage: 30,
     pageCount: -1,
     currentData: [],
-    currentPage: -1,
-  }
+    currentPage: -1
+  };
 
   // Manage state
   const [controller, setController] = useState<AbortController>(new AbortController());
@@ -94,7 +94,7 @@ const App = ({ slug }: Props) => {
         pageCount: pageCount,
         currentPage: currentPage
       }
-    })
+    });
 
     // Update the URL query search param
     changeQuerySearch(currentPage);
@@ -111,15 +111,15 @@ const App = ({ slug }: Props) => {
     } else if (typeof(pageValue) === 'number' && pageValue > paginationState.pageCount) {
       // pageValue number out of range
       return paginationState.pageCount;
-    }
+    };
     return Number(pageValue);
-  }
+  };
 
   useEffect(() => {
     // If component unmounts, then abort unresolved fetches
     return (): void => {
       controller.abort();
-    }
+    };
   }, [controller]);
 
   useEffect(() => {
@@ -137,18 +137,18 @@ const App = ({ slug }: Props) => {
       url = 'http://localhost:3010/';
     } else {
       url = process.env.REACT_APP_PROXY_URL!;
-    }
+    };
 
     const headers: HeadersInit = {
       'X-WEB-TOKEN': webToken,
       'X-VERSION': 'v2',
       'X-PRODUCT': slug
-    }
+    };
 
     const opts: RequestInit = {
       headers,
       signal
-    }
+    };
 
     // API GET fetch
     const fetchProducts = async (url: string, opts: RequestInit): Promise<ProductsType | undefined> => {
@@ -174,22 +174,22 @@ const App = ({ slug }: Props) => {
               pageCount: pageCount,
               currentPage: currentPage
             }
-          })
+          });
         } else {
           if (!statusState.successProduct) {
             statusDispatch({type: 'PENDINGTRUE'})
             fetchProducts(url, opts);
-          }
-        }
+          };
+        };
       } catch(err) {
          console.log(err);
          return err;
-      }
-    }
+      };
+    };
     // Initital fetch products call
     if (!products.length) {
       fetchProducts(url, opts);
-    }
+    };
   }, [slug, paginationState.numberPerPage, products.length, statusState.successProduct, controller.signal]);
 
   if (!statusState.pendingProduct && statusState.successProduct) {
@@ -203,7 +203,7 @@ const App = ({ slug }: Props) => {
     } else {
       // If URL search query is not a number, then start at selected index 0
       selectedValue = 0;
-    }
+    };
 
     // Render product list data
     return (
@@ -231,7 +231,7 @@ const App = ({ slug }: Props) => {
           nextLinkClassName={'page-link'}
         />
       </div>
-    )
+    );
   } else {
     return (
       <div className="spinner-div">
@@ -239,8 +239,8 @@ const App = ({ slug }: Props) => {
           <span className="sr-only">Loading...</span>
         </Spinner>
       </div>
-    )
-  }
-}
+    );
+  };
+};
 
 export default App;

@@ -4,7 +4,7 @@ import capitalizeFirstLetter from '../helpers/capitalize-first-letter';
 
 interface Props {
   cardData: ProductType
-}
+};
 
 class ProductCard extends React.Component<Props> {
   getAvailability(string: string): JSX.Element | HTMLElement {
@@ -13,10 +13,10 @@ class ProductCard extends React.Component<Props> {
         <Spinner animation="border" role="status" variant="dark">
           <span className="sr-only">Loading...</span>
         </Spinner>
-      )
-    }
+      );
+    };
     return (<p className="product-availability">{string}</p>);
-  }
+  };
 
   render() {
     const cardData: ProductType = this.props.cardData;
@@ -36,9 +36,9 @@ class ProductCard extends React.Component<Props> {
           {this.getAvailability(cardData.availability)}
         </div>
       </div>
-    )
-  }
-}
+    );
+  };
+};
 
 
 export default ProductCard;

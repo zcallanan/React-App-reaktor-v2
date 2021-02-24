@@ -3,7 +3,7 @@ import { setupNavClick, selectedProduct } from '../helpers/nav-links';
 
 interface Props {
   slug: string
-}
+};
 
 const PrintJSON = ({ slug }: Props) => {
   const [products, setProducts] = useState<ProductsType>([]);
@@ -12,16 +12,16 @@ const PrintJSON = ({ slug }: Props) => {
     setupNavClick();
     selectedProduct(slug);
 
-    const webToken: string = process.env.REACT_APP_WEB_TOKEN!
+    const webToken: string = process.env.REACT_APP_WEB_TOKEN!;
     const headers: HeadersInit = {
       'X-WEB-TOKEN': webToken,
       'X-VERSION': 'v2',
       'X-PRODUCT': slug
-    }
+    };
 
     const opts: RequestInit = {
       headers
-    }
+    };
 
     let url: string;
     if (process.env.NODE_ENV === 'test') {
@@ -29,7 +29,7 @@ const PrintJSON = ({ slug }: Props) => {
       url = 'http://localhost:3010/';
     } else {
       url = process.env.REACT_APP_PROXY_URL!;
-    }
+    };
 
     const fetchProducts = async (url: string, opts: RequestInit): Promise<ProductsType | undefined> => {
       let data: ProductsAPIType;
@@ -42,12 +42,11 @@ const PrintJSON = ({ slug }: Props) => {
         } else {
           // If we don't get data back, try again
           fetchProducts(url, opts);
-        }
+        };
       } catch(err) {
          return err;
-      }
-
-    }
+      };
+    };
     fetchProducts(url, opts)
   }, [slug]);
 
@@ -60,6 +59,6 @@ const PrintJSON = ({ slug }: Props) => {
       </pre>
     </div>
   );
-}
+};
 
 export default PrintJSON;
