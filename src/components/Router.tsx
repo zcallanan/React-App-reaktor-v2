@@ -11,34 +11,34 @@ const Router = () => (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <ul className="navbar-nav">
         <li className="nav-item beanies-nav">
-          <Link className="nav-link beanies-link" to={"/v2/beanies?page=1"}>Beanies</Link>
+          <Link className="nav-link beanies-link" to={"/beanies?page=1"}>Beanies</Link>
         </li>
         <li className="nav-item facemasks-nav">
-          <Link className="nav-link facemasks-link" to="/v2/facemasks?page=1">Facemasks</Link>
+          <Link className="nav-link facemasks-link" to="/facemasks?page=1">Facemasks</Link>
         </li>
         <li className="nav-item gloves-nav">
-          <Link className="nav-link gloves-link" to="/v2/gloves?page=1">Gloves</Link>
+          <Link className="nav-link gloves-link" to="/gloves?page=1">Gloves</Link>
         </li>
       </ul>
     </nav>
     <Switch>
       {/* If slug is one of three products, send slug to App as prop */}
-      <Route path="/v2/beanies">
+      <Route path="/beanies">
          <Beanies slug="beanies" />
       </Route>
-      <Route path="/v2/facemasks">
+      <Route path="/facemasks">
          <Facemasks slug="facemasks" />
       </Route>
-      <Route path="/v2/gloves">
+      <Route path="/gloves">
          <Gloves slug="gloves" />
       </Route>
-      <Route path="/v2/api/beanies">
+      <Route path="/api/beanies">
          <PrintJSON slug="beanies" />
       </Route>
-      <Route path="/v2/api/facemasks">
+      <Route path="/api/facemasks">
          <PrintJSON slug="facemasks" />
       </Route>
-      <Route path="/v2/api/gloves">
+      <Route path="/api/gloves">
          <PrintJSON slug="gloves" />
       </Route>
       {/* Handle all other routes */}

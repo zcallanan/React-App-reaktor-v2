@@ -67,7 +67,7 @@ const App = ({ slug }: Props) => {
   // Fn to replace URL search query string
   const changeQuerySearch = (currentPage: number): void => {
     history.replace({
-      pathname: `/v2/${slug}`,
+      pathname: `/${slug}`,
       search: `?page=${currentPage}`
     });
 
