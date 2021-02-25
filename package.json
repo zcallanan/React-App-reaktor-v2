@@ -34,9 +34,7 @@
   },
   "jest": {
     "automock": false,
-    "snapshotSerializers": [
-      "enzyme-to-json/serializer"
-    ]
+    "snapshotSerializers": []
   },
   "browserslist": {
     "production": [
@@ -55,19 +53,19 @@
     "@babel/preset-env": "^7.12.16",
     "@babel/preset-react": "^7.12.13",
     "@babel/preset-typescript": "^7.12.16",
-    "@types/enzyme": "^3.10.8",
+    "@testing-library/jest-dom": "^5.11.9",
+    "@testing-library/react": "^11.2.5",
     "@types/jest": "^26.0.20",
     "@types/node": "^14.14.28",
     "@types/react": "^17.0.2",
     "@types/react-dom": "^17.0.1",
     "@types/react-router-dom": "^5.1.7",
     "@types/testing-library__jest-dom": "^5.9.5",
-    "@wojtekmaj/enzyme-adapter-react-17": "^0.4.1",
     "babel-jest": "^26.6.3",
-    "enzyme": "^3.11.0",
-    "enzyme-to-json": "^3.6.1",
     "eslint-plugin-react-hooks": "^4.2.0",
+    "jest": "^26.6.3",
     "jest-fetch-mock": "^3.0.3",
+    "ts-jest": "^26.5.2",
     "ts-node": "^9.1.1"
   }
 }

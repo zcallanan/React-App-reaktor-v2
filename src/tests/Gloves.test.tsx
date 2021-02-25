@@ -2,68 +2,52 @@ import React from "react";
 import Gloves from '../components/Gloves';
 import PrintJSON from '../components/PrintJSON';
 import { MemoryRouter } from "react-router-dom";
-import { act } from 'react-dom/test-utils';
-import isJSON from '../helpers/is-json';
-
-import Enzyme from 'enzyme';
-import Adapter from '@wojtekmaj/enzyme-adapter-react-17';
-import { mount } from 'enzyme';
-
-Enzyme.configure({ adapter: new Adapter() });
+import { render, screen } from '@testing-library/react'
 
 describe('<Glove> Component Tests', () => {
-  fetch.mockResponse(JSON.stringify({"rows":
+  fetchMock.mockResponse(JSON.stringify({"rows":
     [
       {"id":"7c3149c69aeb51e167d6","type":"gloves","name":"AKFOLHEM EARTH","color":"red","price":11,"manufacturer":"juuran","availability":"In Stock"},
-      {"id":"da35e621ad262615e2fa9e5","type":"gloves","name":"DALLEAKOL NORMAL","color":"red","price":64,"manufacturer":"hennex","availability":"Less Than 10"},
+      {"id":"da35e621ad262615e2fa9e5","type":"gloves","name":"DALLEAKOL NORMAL","color":"orange","price":64,"manufacturer":"hennex","availability":"Less Than 10"},
       {"id":"1b1610b94d3d1d701b0","type":"gloves","name":"HEMFOLNY SLIP METROPOLIS","color":"black, blue","price":54,"manufacturer":"umpante","availability":"Out of Stock"}
     ]
   }))
 
-  test('Glove Product List component displayed', async () => {
-    let component;
-    await act( async () => {
-      component = mount(<MemoryRouter initialEntries={["/gloves"]} ><Gloves slug="gloves" /></MemoryRouter>)
-    });
-    component.update()
-    expect(component.find('ProductList')).toHaveLength(1);
-    component.unmount()
-  })
+  test('Gloves Product Card component text', () => {
+    render(<MemoryRouter initialEntries={["/gloves"]} ><Gloves slug="gloves" /></MemoryRouter>);
+    expect(screen.findByText('Manufacturer: Juuran'));
+    expect(screen.findByText('Manufacturer: Hennex'));
+    expect(screen.findByText('Manufacturer: Umpante'));
+    expect(screen.findByText('Name: Akfolhem Earth'));
+    expect(screen.findByText('Name: Dalleakol Normal'));
+    expect(screen.findByText('Name: Hemfolny Slip Metropolis'));
+    expect(screen.findByText('Colors: Red'));
+    expect(screen.findByText('Colors: Orange'));
+    expect(screen.findByText('Colors: Black, Blue'));
+    expect(screen.findByText('Price: 11 €'));
+    expect(screen.findByText('Price: 64 €'));
+    expect(screen.findByText('Price: 54 €'));
+    expect(screen.findByText('In Stock'));
+    expect(screen.findByText('Less Than 10'));
+    expect(screen.findByText('Out of Stock'));
+  });
 
-  test('Glove Product Card components and data are displayed', async () => {
-    let component;
-    await act( async () => {
-      component = mount(<MemoryRouter initialEntries={["/gloves"]} ><Gloves slug="gloves" /></MemoryRouter>)
-    });
-    component.update()
-    expect(component.find('ProductCard')).toHaveLength(3);
-    expect(component.find('.product-manufacturer').first().text().includes('Manufacturer: Juuran')).toBe(true);
-    expect(component.find('.product-manufacturer').at(1).text().includes('Manufacturer: Hennex')).toBe(true);
-    expect(component.find('.product-manufacturer').last().text().includes('Manufacturer: Umpante')).toBe(true);
-    expect(component.find('.product-name').first().text().includes('Name: Akfolhem Earth')).toBe(true);
-    expect(component.find('.product-name').at(1).text().includes('Name: Dalleakol Normal')).toBe(true);
-    expect(component.find('.product-name').last().text().includes('Name: Hemfolny Slip Metropolis')).toBe(true);
-    expect(component.find('.product-colors').first().text().includes('Colors: Red')).toBe(true);
-    expect(component.find('.product-colors').at(1).text().includes('Colors: Red')).toBe(true);
-    expect(component.find('.product-colors').last().text().includes('Colors: Black, Blue')).toBe(true);
-    expect(component.find('.product-price').first().text().includes('Price: 11 €')).toBe(true);
-    expect(component.find('.product-price').at(1).text().includes('Price: 64 €')).toBe(true);
-    expect(component.find('.product-price').last().text().includes('Price: 54 €')).toBe(true);
-    expect(component.find('.product-availability').first().text().includes('In Stock')).toBe(true);
-    expect(component.find('.product-availability').at(1).text().includes('Less Than 10')).toBe(true);
-    expect(component.find('.product-availability').last().text().includes('Out of Stock')).toBe(true);
-    component.unmount()
-  })
-
-  test('Gloves PrintJSON component', async () => {
-    let component;
-    await act( async () => {
-      component = mount(<MemoryRouter initialEntries={["/api/gloves"]} ><PrintJSON slug="gloves" /></MemoryRouter>)
-    });
-    component.update()
-    expect(component.find(PrintJSON)).toHaveLength(1);
-    // Test if valid JSON is displayed
-    expect(isJSON(component.find('span').children().text())).toBe(true);
-    component.unmount()
-  })
+  test('Gloves PrintJSON component text', () => {
+    render(<MemoryRouter initialEntries={["/gloves"]} ><Gloves slug="gloves" /></MemoryRouter>);
+    expect(screen.findByText('Manufacturer: Juuran'));
+    expect(screen.findByText('Manufacturer: Hennex'));
+    expect(screen.findByText('Manufacturer: Umpante'));
+    expect(screen.findByText('Name: Akfolhem Earth'));
+    expect(screen.findByText('Name: Dalleakol Normal'));
+    expect(screen.findByText('Name: Hemfolny Slip Metropolis'));
+    expect(screen.findByText('Colors: Red'));
+    expect(screen.findByText('Colors: Orange'));
+    expect(screen.findByText('Colors: Black, Blue'));
+    expect(screen.findByText('Price: 11 €'));
+    expect(screen.findByText('Price: 64 €'));
+    expect(screen.findByText('Price: 54 €'));
+    expect(screen.findByText('In Stock'));
+    expect(screen.findByText('Less Than 10'));
+    expect(screen.findByText('Out of Stock'));
+  });
 })
