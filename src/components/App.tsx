@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useReducer, useRef, useCallback } from 'react';
-import { setupNavClick, selectedProduct } from '../helpers/nav-links';
 import ProductList from './ProductList';
 import Spinner from 'react-bootstrap/Spinner';
 import ReactPaginate from 'react-paginate';
@@ -60,7 +59,7 @@ const App = ({ slug }: Props) => {
 
   // History
   const history = useHistory();
-  const searchQueryValue = history?.location.search.match(/\d+/)!;
+  const searchQueryRaw = history?.location.search.match(/\d+/)!;
 
   // Fetch cancel
   const controller = useRef(new AbortController());
@@ -131,10 +130,6 @@ const App = ({ slug }: Props) => {
   }, [controller]);
 
   useEffect(() => {
-    // Setup nav links
-    setupNavClick();
-    selectedProduct(slug);
-
     // API request values
     const signal = controller.current.signal;
     let url: string = process.env.REACT_APP_PROXY_URL!;
@@ -164,7 +159,7 @@ const App = ({ slug }: Props) => {
 
           // Setup initial currentData
 
-          let currentPage: number = validateSearchQuery(searchQueryValue[0]);
+          let currentPage: number = validateSearchQuery(searchQueryRaw[0]);
           let offset = Math.ceil((currentPage - 1) * paginationState.numberPerPage);
           let currentData = data[slug].slice(offset, offset + paginationState.numberPerPage);
           let pageCount = data[slug].length / paginationState.numberPerPage
@@ -199,16 +194,16 @@ const App = ({ slug }: Props) => {
     statusState.successProduct,
     history?.location.search,
     validateSearchQuery,
-    searchQueryValue
+    searchQueryRaw
   ]);
 
   if (!statusState.pendingProduct && statusState.successProduct) {
-    let searchQuery: string | number = (searchQueryValue === null) ? 's' : searchQueryValue[0];
+    let searchQueryVal: string | number = (searchQueryRaw === null) ? 's' : searchQueryRaw[0];
     let selectedValue: number;
 
-    if (Number(searchQuery)) {
+    if (Number(searchQueryVal)) {
       // If URL search query value is a number, then selectedValue is 1 less than the page number (selected starts at 0)
-      selectedValue = Number(searchQuery) - 1;
+      selectedValue = Number(searchQueryVal) - 1;
     } else {
       // If URL search query is not a number, then start at selected index 0
       selectedValue = 0;
