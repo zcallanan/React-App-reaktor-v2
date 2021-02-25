@@ -10,7 +10,6 @@ interface Props {
 }
 
 const App = ({ slug }: Props) => {
-  const history = useHistory();
 
   // Reducers
   const statusReducer = (state, action) => {
@@ -29,6 +28,7 @@ const App = ({ slug }: Props) => {
         throw new Error();
     };
   };
+
   const paginationReducer = (state, action) => {
     switch (action.type) {
       case 'PAGINATION':
@@ -57,6 +57,10 @@ const App = ({ slug }: Props) => {
     currentData: [],
     currentPage: -1
   };
+
+  // History
+  const history = useHistory();
+  const searchQueryValue = history?.location.search.match(/\d+/)!;
 
   // Fetch cancel
   const controller = useRef(new AbortController());
@@ -102,7 +106,6 @@ const App = ({ slug }: Props) => {
     changeQuerySearch(currentPage);
   };
 
-  const loc = history?.location.search.match(/\d+/)![0];
   const validateSearchQuery = useCallback((pageValue: number | string): number => {
     if (typeof(pageValue) === 'string' && Number(pageValue)) {
       // Value is a string, but can be converted to a number
@@ -161,7 +164,7 @@ const App = ({ slug }: Props) => {
 
           // Setup initial currentData
 
-          let currentPage: number = validateSearchQuery(loc);
+          let currentPage: number = validateSearchQuery(searchQueryValue[0]);
           let offset = Math.ceil((currentPage - 1) * paginationState.numberPerPage);
           let currentData = data[slug].slice(offset, offset + paginationState.numberPerPage);
           let pageCount = data[slug].length / paginationState.numberPerPage
@@ -196,12 +199,11 @@ const App = ({ slug }: Props) => {
     statusState.successProduct,
     history?.location.search,
     validateSearchQuery,
-    loc
+    searchQueryValue
   ]);
 
   if (!statusState.pendingProduct && statusState.successProduct) {
-    let searchQueryArray: Array<string> | null = history?.location.search.match(/\d+/)!;
-    let searchQuery: string | number = (searchQueryArray === null) ? 's' : searchQueryArray[0];
+    let searchQuery: string | number = (searchQueryValue === null) ? 's' : searchQueryValue[0];
     let selectedValue: number;
 
     if (Number(searchQuery)) {
