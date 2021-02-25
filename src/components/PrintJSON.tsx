@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { setupNavClick, selectedProduct } from '../helpers/nav-links';
 
 interface Props {
   slug: string
@@ -9,9 +8,6 @@ const PrintJSON = ({ slug }: Props) => {
   const [products, setProducts] = useState<ProductsType>([]);
 
   useEffect(() => {
-    setupNavClick();
-    selectedProduct(slug);
-
     const webToken: string = process.env.REACT_APP_WEB_TOKEN!;
     const headers: HeadersInit = {
       'X-WEB-TOKEN': webToken,
