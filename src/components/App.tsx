@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useReducer, useRef } from 'react';
+import React, { useEffect, useState, useReducer, useRef, useCallback } from 'react';
 import { setupNavClick, selectedProduct } from '../helpers/nav-links';
 import ProductList from './ProductList';
 import Spinner from 'react-bootstrap/Spinner';
@@ -58,8 +58,10 @@ const App = ({ slug }: Props) => {
     currentPage: -1
   };
 
-  // Manage state
+  // Fetch cancel
   const controller = useRef(new AbortController());
+
+  // Manage state
   const [statusState, statusDispatch] = useReducer(statusReducer, statusInitial);
   const [products, setProducts] = useState<ProductsType>([]);
   const [paginationState, paginationDispatch] = useReducer(paginationReducer, paginationInitial);
@@ -100,7 +102,8 @@ const App = ({ slug }: Props) => {
     changeQuerySearch(currentPage);
   };
 
-  const validateSearchQuery = (pageValue: number | string): number => {
+  const loc = history?.location.search.match(/\d+/)![0];
+  const validateSearchQuery = useCallback((pageValue: number | string): number => {
     if (typeof(pageValue) === 'string' && Number(pageValue)) {
       // Value is a string, but can be converted to a number
       // Validate it again in case the string-converted number is out of range
@@ -113,7 +116,7 @@ const App = ({ slug }: Props) => {
       return paginationState.pageCount;
     };
     return Number(pageValue);
-  };
+  }, [paginationState.pageCount]);
 
   useEffect(() => {
     // Assign to a var or React complains
@@ -157,7 +160,8 @@ const App = ({ slug }: Props) => {
           setProducts(data[slug]);
 
           // Setup initial currentData
-          let currentPage: number = validateSearchQuery(history?.location.search.match(/\d+/)![0]);
+
+          let currentPage: number = validateSearchQuery(loc);
           let offset = Math.ceil((currentPage - 1) * paginationState.numberPerPage);
           let currentData = data[slug].slice(offset, offset + paginationState.numberPerPage);
           let pageCount = data[slug].length / paginationState.numberPerPage
@@ -185,7 +189,15 @@ const App = ({ slug }: Props) => {
     if (!products.length && process.env.NODE_ENV !== 'test') {
       fetchProducts(url, opts);
     };
-  }, [slug, paginationState.numberPerPage, products.length, statusState.successProduct]);
+  }, [
+    slug,
+    paginationState.numberPerPage,
+    products.length,
+    statusState.successProduct,
+    history?.location.search,
+    validateSearchQuery,
+    loc
+  ]);
 
   if (!statusState.pendingProduct && statusState.successProduct) {
     let searchQueryArray: Array<string> | null = history?.location.search.match(/\d+/)!;
