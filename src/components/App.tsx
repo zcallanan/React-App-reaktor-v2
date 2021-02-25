@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useReducer } from 'react';
+import React, { useEffect, useState, useReducer, useRef } from 'react';
 import { setupNavClick, selectedProduct } from '../helpers/nav-links';
 import ProductList from './ProductList';
 import Spinner from 'react-bootstrap/Spinner';
@@ -59,7 +59,7 @@ const App = ({ slug }: Props) => {
   };
 
   // Manage state
-  const [controller, setController] = useState<AbortController>(new AbortController());
+  const controller = useRef(new AbortController());
   const [statusState, statusDispatch] = useReducer(statusReducer, statusInitial);
   const [products, setProducts] = useState<ProductsType>([]);
   const [paginationState, paginationDispatch] = useReducer(paginationReducer, paginationInitial);
@@ -116,9 +116,11 @@ const App = ({ slug }: Props) => {
   };
 
   useEffect(() => {
-    // If component unmounts, then abort unresolved fetches
+    // Assign to a var or React complains
+    let controllerValue = controller.current;
     return (): void => {
-      controller.abort();
+      // If component unmounts, then abort unresolved fetches on cleanup
+      controllerValue.abort();
     };
   }, [controller]);
 
@@ -128,7 +130,7 @@ const App = ({ slug }: Props) => {
     selectedProduct(slug);
 
     // API request values
-    const signal = controller.signal;
+    const signal = controller.current.signal;
     let url: string;
     const webToken: string = process.env.REACT_APP_WEB_TOKEN!;
 
@@ -157,7 +159,7 @@ const App = ({ slug }: Props) => {
         const response = await fetch(url, opts);
         data = await response.json();
 
-        if (await Array.isArray(data[slug]) && data[slug].length) {
+        if (Array.isArray(data[slug]) && data[slug].length) {
           statusDispatch({type: 'SUCCESSTRUE'})
           setProducts(data[slug]);
 
@@ -186,11 +188,11 @@ const App = ({ slug }: Props) => {
          return err;
       };
     };
-    // Initital fetch products call
-    if (!products.length) {
+    // Initital fetch products call. fetchMock is used in tests.
+    if (!products.length && process.env.NODE_ENV !== 'test') {
       fetchProducts(url, opts);
     };
-  }, [slug, paginationState.numberPerPage, products.length, statusState.successProduct, controller.signal]);
+  }, [slug, paginationState.numberPerPage, products.length, statusState.successProduct]);
 
   if (!statusState.pendingProduct && statusState.successProduct) {
     let searchQueryArray: Array<string> | null = history?.location.search.match(/\d+/)!;
