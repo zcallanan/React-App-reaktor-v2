@@ -131,15 +131,8 @@ const App = ({ slug }: Props) => {
 
     // API request values
     const signal = controller.current.signal;
-    let url: string;
+    let url: string = process.env.REACT_APP_PROXY_URL!;
     const webToken: string = process.env.REACT_APP_WEB_TOKEN!;
-
-    if (process.env.NODE_ENV === 'test') {
-      // Testing requires a string
-      url = 'http://localhost:3010/';
-    } else {
-      url = process.env.REACT_APP_PROXY_URL!;
-    };
 
     const headers: HeadersInit = {
       'X-WEB-TOKEN': webToken,
