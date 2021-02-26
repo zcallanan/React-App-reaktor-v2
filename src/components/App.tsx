@@ -159,7 +159,7 @@ const App = ({ slug }: Props) => {
 
           // Setup initial currentData
 
-          let currentPage: number = validateSearchQuery(searchQueryRaw[0]);
+          let currentPage: number = searchQueryRaw[0] === null ? 1 : validateSearchQuery(searchQueryRaw[0]);
           let offset = Math.ceil((currentPage - 1) * paginationState.numberPerPage);
           let currentData = data[slug].slice(offset, offset + paginationState.numberPerPage);
           let pageCount = data[slug].length / paginationState.numberPerPage

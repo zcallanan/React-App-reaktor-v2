@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useHistory } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 const Nav = () => {
   const beaniesRef = useRef<HTMLAnchorElement>(null);
@@ -8,7 +8,8 @@ const Nav = () => {
   const glovesRef = useRef<HTMLAnchorElement>(null);
 
   const handleLinkClick = (e) => {
-    if (beaniesRef.current === e.target) {
+    if (beaniesRef !== null && facemasksRef !== null && glovesRef !== null) {
+      if (beaniesRef.current === e.target) {
         glovesRef.current!.classList.remove('active');
         facemasksRef.current!.classList.remove('active');
       } else if (facemasksRef.current === e.target) {
@@ -19,22 +20,22 @@ const Nav = () => {
         facemasksRef.current!.classList.remove('active');
       };
       e.target.classList.add("active");
+    }
   }
-
-  const history = useHistory();
-  const slug: string = history?.location.pathname.match(/\w+/)![0];
+  const location = useLocation();
+  const slug: string = location.pathname.match(/\w+/)![0];
 
   useEffect(() => {
     if (slug === 'beanies') {
-      if (beaniesRef.current !== null) {
+      if (beaniesRef !== null) {
         beaniesRef.current!.classList.add('active');
       };
     } else if (slug === 'facemasks') {
-      if (facemasksRef.current !== null) {
+      if (facemasksRef !== null) {
         facemasksRef.current!.classList.add('active');
       };
     } else if (slug === 'gloves') {
-      if (glovesRef.current !== null) {
+      if (glovesRef !== null) {
         glovesRef.current!.classList.add('active');
       };
     };
