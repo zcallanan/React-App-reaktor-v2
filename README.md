@@ -15,5 +15,5 @@
   * In Stock
   * Less Than 10
   * Out of Stock
-* If product items are not found in the third party API responses, then the app displays "Unknown Availability"
-  * If this occurs it's generally for all products of a manufacturer
+* If product items are not found in the third party API responses, then the app displays: 
+  * Unknown Availability
