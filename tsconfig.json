@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
-    "types": ["jest", "node"],
+    "types": [
+      "jest",
+      "node"
+    ],
     "jsx": "react-jsx",
     "target": "es5",
     "module": "esnext",
@@ -23,6 +26,7 @@
     "noImplicitAny": false
   },
   "include": [
-    "src"
+    "src",
+    "/node_modules/**/*"
   ]
 }
